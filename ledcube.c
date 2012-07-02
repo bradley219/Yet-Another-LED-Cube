@@ -10,7 +10,7 @@
 #define TLC_GS_ROW_BYTES (NUM_TLC_CHANNELS*12/8)
 #define TLC_GS_BYTES (TLC_GS_ROW_BYTES*NUM_ROWS)
 
-#define TLC_PWM_PERIOD (4096 * 1)
+#define TLC_PWM_PERIOD (4096 * 2)
 
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
@@ -58,18 +58,26 @@ void tlc_latch(void)
 	TLC_XLAT_PORT |= _BV(TLC_XLAT); // 10 ns min
 	TLC_XLAT_PORT &= ~_BV(TLC_XLAT);
 }
+/** Enables the output of XLAT pulses */
+#define enable_XLAT_pulses()    TCCR1A = _BV(COM1A1) | _BV(COM1B1)
+/** Disables the output of XLAT pulses */
+#define disable_XLAT_pulses()   TCCR1A = _BV(COM1B1)
+
+void enable_xlat(void)
+{
+	TCCR1A |= _BV(COM1A1);
+}
+void disable_xlat(void)
+{
+	TCCR1A &= ~_BV(COM1A1);
+}
 void tlc_timer_init(void)
 {
-	// GSCLK - very high frequency (max is 30MHz)
-//	TCCR2A = _BV(WGM21) | _BV(COM2B0); // toggle oc2b on compare match
-//	OCR2A = 0; // TOP
-//	OCR2B = 0; 
-//	TCCR2B = TIMER2_PS_BITS;
 
 	// GSCLK timer -- high frequency
 	TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
 	OCR2B = 0;
-	OCR2A = 3; // don't touch these
+	OCR2A = 3; // don't touch this
 	TCCR2B = _BV(WGM22) | TIMER2_PS_BITS; // no prescale, start
 
 	// Timer 1 - BLANK / XLAT 
@@ -222,7 +230,7 @@ void tlc_update_gs(void)
 	while(bytes--)
 		tlc_shift8(*gsd--);
 
-	tlc_latch(); // latch data
+	enable_xlat(); // latch data when ready
 	return;
 }
 
@@ -289,6 +297,7 @@ void shift_register_init(void)
 volatile uint8_t step_next = 0;
 ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 {
+	disable_xlat(); // disable latches until next data write
 	if( step_next )
 	{
 		if( current_row == 0 )

@@ -124,7 +124,7 @@ AVRDUDE_DRAGON = dragon_isp
 AVRDUDE_MKII = avrispmkII
 AVRDUDE_PORT = usb
 AVRDUDE_CONF = /usr/local/etc/avrdude.conf
-AVRDUDE_VERBOSITY = -vv -B0.5
+AVRDUDE_VERBOSITY = -vv -B0.13
 AVRDUDE_MCU = m328p
 
 # AVRDUDE Settings
@@ -216,7 +216,7 @@ all: begin gccversion sizebefore $(TARGET).elf $(TARGET).hex $(TARGET).eep \
 
 # Program the device.
 program: $(TARGET).hex
-	$(AVRDUDE) $(AVRDUDE_FLAGS) -V -c$(AVRDUDE_MKII) $(AVRDUDE_WRITE_FLASH) || \
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -c$(AVRDUDE_MKII) $(AVRDUDE_WRITE_FLASH) || \
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -V -c$(AVRDUDE_DRAGON) $(AVRDUDE_WRITE_FLASH) 
 program2: $(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -c$(AVRDUDE_MKII) $(AVRDUDE_WRITE_FLASH)
