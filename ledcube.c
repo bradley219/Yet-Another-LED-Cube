@@ -10,7 +10,7 @@
 #define TLC_GS_ROW_BYTES (NUM_TLC_CHANNELS*12/8)
 #define TLC_GS_BYTES (TLC_GS_ROW_BYTES*NUM_ROWS)
 
-#define TLC_PWM_PERIOD (4096 * 2)
+#define TLC_PWM_PERIOD (4096 * 1)
 
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
@@ -413,7 +413,7 @@ int main(void)
 				for( uint8_t z = 0; z < 3; z++ ) {
 
 					//hsb.h = (double)rand() / (double)RAND_MAX;
-					hsb.h += 0.0035;
+					hsb.h += 0.00005;
 
 					if( hsb.h >= 1 )
 						hsb.h -= 1;
@@ -426,7 +426,7 @@ int main(void)
 		}
 	
 		tlc_gs_data_latch();
-		_delay_ms(80);
+		_delay_ms(40);
 	}
 	return 0;
 }
