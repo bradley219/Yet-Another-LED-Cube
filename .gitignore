@@ -3,6 +3,10 @@
 *.lo
 *.o
 
+*.elf
+*.lst
+*.map
+
 # Compiled Dynamic libraries
 *.so
 

@@ -14,6 +14,10 @@
 
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
+#define PWM_MAX_BLUE  600
+#define PWM_MAX_GREEN 1400
+#define PWM_MAX_RED   4095
+
 struct hsb {
 	float h;
 	float s;
@@ -233,6 +237,15 @@ void tlc_update_gs(void)
 	enable_xlat(); // latch data when ready
 	return;
 }
+void tlc_set_all_dc_rgb( struct rgb *dc )
+{
+	for( int i = 0; i < 4; i++ )
+	{
+		tlc_set_dc( i * 3 + 0, dc->r );
+		tlc_set_dc( i * 3 + 1, dc->g );
+		tlc_set_dc( i * 3 + 2, dc->b );
+	}
+}
 
 void tlc_init(void)
 {
@@ -252,11 +265,13 @@ void tlc_init(void)
 	tlc_set_all_gs(0);
 	tlc_gs_data_latch();
 
-	tlc_set_all_dc(15);
-	tlc_set_dc( 0, 40 );
-	tlc_set_dc( 3, 40 );
-	tlc_set_dc( 6, 40 );
-	tlc_set_dc( 9, 40 );
+
+	struct rgb dc_rgb = { 
+		.r = 23, 
+		.g = 63, 
+		.b = 63
+	};
+	tlc_set_all_dc_rgb( &dc_rgb );
 	tlc_update_dc();
 	
 	return;
@@ -295,6 +310,7 @@ void shift_register_init(void)
 }
 
 volatile uint8_t step_next = 0;
+//ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 {
 	disable_xlat(); // disable latches until next data write
@@ -332,9 +348,9 @@ void set_led( uint8_t x, uint8_t y, uint8_t z, struct rgb *color )
 	uint8_t row = y + z * 4; // FIXME: don't hardcode 
 
 	uint8_t chanstart = x * 3;
-	tlc_set_gs( chanstart,   row, color->r * 4095.0 );
-	tlc_set_gs( chanstart+1, row, color->g * 4095.0 );
-	tlc_set_gs( chanstart+2, row, color->b * 4095.0 );
+	tlc_set_gs( chanstart,   row, color->r * (double)PWM_MAX_RED );
+	tlc_set_gs( chanstart+1, row, color->g * (double)PWM_MAX_GREEN );
+	tlc_set_gs( chanstart+2, row, color->b * (double)PWM_MAX_BLUE );
 
 	return;
 }
@@ -412,11 +428,13 @@ int main(void)
 			for( uint8_t y = 0; y < 4; y++ ) {
 				for( uint8_t z = 0; z < 3; z++ ) {
 
-					//hsb.h = (double)rand() / (double)RAND_MAX;
 					hsb.h += 0.00005;
 
-					if( hsb.h >= 1 )
-						hsb.h -= 1;
+//		hsb.h += 0.4;
+//		hsb.h += ((double)rand() / (double)RAND_MAX) * 0.20;
+		if( hsb.h >= 1 )
+			hsb.h -= 1;
+		
 					
 					hsb_to_rgb( &hsb, &rgb );
 					set_led( x, y, z, &rgb );
@@ -426,7 +444,7 @@ int main(void)
 		}
 	
 		tlc_gs_data_latch();
-		_delay_ms(40);
+		_delay_ms(10);
 	}
 	return 0;
 }
