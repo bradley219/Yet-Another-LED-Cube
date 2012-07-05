@@ -4,7 +4,7 @@
  * TLC
  */
 
-#define NUM_ROWS 12
+#define NUM_ROWS 16
 #define NUM_TLC_CHANNELS (NUM_TLC_CHIPS * 16)
 #define TLC_DC_BYTES (NUM_TLC_CHANNELS*6/8)
 #define TLC_GS_ROW_BYTES (NUM_TLC_CHANNELS*12/8)
@@ -14,8 +14,8 @@
 
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
-#define PWM_MAX_BLUE  600
-#define PWM_MAX_GREEN 1400
+#define PWM_MAX_BLUE  400
+#define PWM_MAX_GREEN 400
 #define PWM_MAX_RED   4095
 
 struct hsb {
@@ -62,10 +62,6 @@ void tlc_latch(void)
 	TLC_XLAT_PORT |= _BV(TLC_XLAT); // 10 ns min
 	TLC_XLAT_PORT &= ~_BV(TLC_XLAT);
 }
-/** Enables the output of XLAT pulses */
-#define enable_XLAT_pulses()    TCCR1A = _BV(COM1A1) | _BV(COM1B1)
-/** Disables the output of XLAT pulses */
-#define disable_XLAT_pulses()   TCCR1A = _BV(COM1B1)
 
 void enable_xlat(void)
 {
@@ -267,7 +263,7 @@ void tlc_init(void)
 
 
 	struct rgb dc_rgb = { 
-		.r = 23, 
+		.r = 43, 
 		.g = 63, 
 		.b = 63
 	};
@@ -412,6 +408,7 @@ void hsb_to_rgb( struct hsb *hsbvals, struct rgb *output )
 
 int main(void)
 {
+
 	shift_register_init();
 	tlc_init();
 
@@ -422,21 +419,23 @@ int main(void)
 	hsb.h = 0;
 	hsb.s = 1;
 	hsb.b = 0.5;
+	
 	while(1)
 	{
 		for( uint8_t x = 0; x < 4; x++ ) {
 			for( uint8_t y = 0; y < 4; y++ ) {
-				for( uint8_t z = 0; z < 3; z++ ) {
+				for( uint8_t z = 0; z < 4; z++ ) {
 
-					hsb.h += 0.00005;
+//					hsb.h += 0.00015;
 
 //		hsb.h += 0.4;
-//		hsb.h += ((double)rand() / (double)RAND_MAX) * 0.20;
+		hsb.h += ((double)rand() / (double)RAND_MAX) * 0.20;
 		if( hsb.h >= 1 )
 			hsb.h -= 1;
 		
 					
 					hsb_to_rgb( &hsb, &rgb );
+					
 					set_led( x, y, z, &rgb );
 
 				}
@@ -444,7 +443,8 @@ int main(void)
 		}
 	
 		tlc_gs_data_latch();
-		_delay_ms(10);
+
+		_delay_ms(100);
 	}
 	return 0;
 }
