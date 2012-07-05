@@ -18,16 +18,24 @@
 #define PWM_MAX_GREEN 400
 #define PWM_MAX_RED   4095
 
-struct hsb {
+#define DOT_CORRECTION_BLUE 63
+#define DOT_CORRECTION_GREEN 63
+#define DOT_CORRECTION_RED 30
+
+#define LED_WIDTH 4
+#define LED_HEIGHT 4
+#define LED_DEPTH 4
+
+typedef struct {
 	float h;
 	float s;
 	float b;
-};
-struct rgb {
+} hsb_t;
+typedef struct {
 	float r;
 	float g;
 	float b;
-};
+} rgb_t;
 
 
 volatile uint16_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
@@ -233,7 +241,7 @@ void tlc_update_gs(void)
 	enable_xlat(); // latch data when ready
 	return;
 }
-void tlc_set_all_dc_rgb( struct rgb *dc )
+void tlc_set_all_dc_rgb( rgb_t *dc )
 {
 	for( int i = 0; i < 4; i++ )
 	{
@@ -262,10 +270,10 @@ void tlc_init(void)
 	tlc_gs_data_latch();
 
 
-	struct rgb dc_rgb = { 
-		.r = 43, 
-		.g = 63, 
-		.b = 63
+	rgb_t dc_rgb = { 
+		.r = DOT_CORRECTION_RED, 
+		.g = DOT_CORRECTION_GREEN, 
+		.b = DOT_CORRECTION_BLUE
 	};
 	tlc_set_all_dc_rgb( &dc_rgb );
 	tlc_update_dc();
@@ -339,7 +347,7 @@ ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 	return;
 }
 
-void set_led( uint8_t x, uint8_t y, uint8_t z, struct rgb *color )
+void set_led( uint8_t x, uint8_t y, uint8_t z, rgb_t *color )
 {
 	uint8_t row = y + z * 4; // FIXME: don't hardcode 
 
@@ -367,7 +375,7 @@ float process( float input, float temp1, float temp2 ) {
 		output = temp1;
 	return( output );
 }
-void hsb_to_rgb( struct hsb *hsbvals, struct rgb *output ) 
+void hsb_to_rgb( hsb_t *hsbvals, rgb_t *output ) 
 {
 	float temp1;
 	float temp2;
@@ -406,46 +414,86 @@ void hsb_to_rgb( struct hsb *hsbvals, struct rgb *output )
 	return( output );
 }
 
+#define CUBE_HEIGHT 2
+#define CUBE_WIDTH 2
+#define CUBE_DEPTH 2
+
+typedef struct {
+	uint8_t x;
+	uint8_t y;
+	uint8_t z;
+} coord_t;
+
+typedef struct {
+	rgb_t color;
+	coord_t position;
+} cube_t;
+
+void set_cube_color( cube_t *cube, hsb_t *color )
+{
+	hsb_to_rgb( color, &cube->color );
+	return;
+}
+void set_cube_position( cube_t *cube, coord_t *coord )
+{
+	memcpy( &cube->position, coord, sizeof(coord_t) );
+	return;
+}
+void render_cube( cube_t *cube )
+{
+	for( uint8_t x = cube->position.x; x < (cube->position.x+CUBE_WIDTH) && x < LED_WIDTH; x++ )
+	{
+		for( uint8_t y = cube->position.y; y < (cube->position.y+CUBE_HEIGHT) && y < LED_HEIGHT; y++ )
+		{
+			for( uint8_t z = cube->position.z; z < (cube->position.z+CUBE_DEPTH) && z < LED_DEPTH; z++ )
+			{
+				set_led( x, y, z, &cube->color );
+			}
+		}
+	}
+	return;
+}
+
 int main(void)
 {
 
 	shift_register_init();
 	tlc_init();
 
-	tlc_set_all_gs(0);
 
-	struct rgb rgb;
-	struct hsb hsb;
-	hsb.h = 0;
-	hsb.s = 1;
-	hsb.b = 0.5;
-	
-	while(1)
-	{
-		for( uint8_t x = 0; x < 4; x++ ) {
-			for( uint8_t y = 0; y < 4; y++ ) {
-				for( uint8_t z = 0; z < 4; z++ ) {
 
-//					hsb.h += 0.00015;
-
-//		hsb.h += 0.4;
-		hsb.h += ((double)rand() / (double)RAND_MAX) * 0.20;
-		if( hsb.h >= 1 )
-			hsb.h -= 1;
-		
-					
-					hsb_to_rgb( &hsb, &rgb );
-					
-					set_led( x, y, z, &rgb );
-
-				}
-			}
-		}
-	
-		tlc_gs_data_latch();
-
-		_delay_ms(100);
-	}
 	return 0;
 }
 
+void led_test(void)
+{
+	for( uint8_t c = 0; c < 3; c++ )
+	{
+		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
+		{
+			for( uint8_t z = 0; z < LED_DEPTH; z++ )
+			{
+				rgb_t rgb = { .r = 0, .g = 0, .b = 0 };
+				switch(c)
+				{
+					case 0:
+						rgb.r = 1;
+						break;
+					case 1:
+						rgb.g = 1;
+						break;
+					case 2:
+						rgb.b = 1;
+						break;
+				}
+				tlc_set_all_gs(50);
+				for( uint8_t x = 0; x < LED_WIDTH; x++ )
+				{
+					set_led( x, y, z, &rgb );
+				}
+				tlc_gs_data_latch();
+				_delay_ms(300);
+			}
+		}
+	}
+}
