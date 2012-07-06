@@ -1,5 +1,32 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
+#include "types.h"
+
+/**
+ * TLC
+ */
+
+#define NUM_ROWS 16
+#define NUM_TLC_CHANNELS (NUM_TLC_CHIPS * 16)
+#define TLC_DC_BYTES (NUM_TLC_CHANNELS*6/8)
+#define TLC_GS_ROW_BYTES (NUM_TLC_CHANNELS*12/8)
+#define TLC_GS_BYTES (TLC_GS_ROW_BYTES*NUM_ROWS)
+
+#define TLC_PWM_PERIOD (4096 * 1)
+
+#define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
+
+#define PWM_MAX_BLUE  500
+#define PWM_MAX_GREEN 800
+#define PWM_MAX_RED   4095
+
+#define DOT_CORRECTION_BLUE 63
+#define DOT_CORRECTION_GREEN 63
+#define DOT_CORRECTION_RED 63 //49
+
+#define LED_WIDTH 4
+#define LED_HEIGHT 4
+#define LED_DEPTH 4
 
 /**
  * DEBUGGING
@@ -43,6 +70,59 @@
 #define TIMER0_PRESCALE 1
 #define TIMER1_PRESCALE 1
 #define TIMER2_PRESCALE TIMER1_PRESCALE
+
+/* Prescales */
+#if TIMER0_PRESCALE == 1024
+#define TIMER0_PS_BITS ( _BV(CS02) | _BV(CS00) )
+#elif TIMER0_PRESCALE == 256
+#define TIMER0_PS_BITS ( _BV(CS02) )
+#elif TIMER0_PRESCALE == 64
+#define TIMER0_PS_BITS ( _BV(CS01) | _BV(CS00) )
+#elif TIMER0_PRESCALE == 8
+#define TIMER0_PS_BITS ( _BV(CS01) )
+#elif TIMER0_PRESCALE == 1
+#define TIMER0_PS_BITS ( _BV(CS00) )
+#elif TIMER0_PRESCALE == 0
+#define TIMER0_PS_BITS ( 0 )
+#else 
+#error "TIMER0_PRESCALE is invalid!"
+#endif
+
+#if TIMER1_PRESCALE == 1024
+#define TIMER1_PS_BITS ( _BV(CS12) | _BV(CS10) )
+#elif TIMER1_PRESCALE == 256
+#define TIMER1_PS_BITS ( _BV(CS12) )
+#elif TIMER1_PRESCALE == 64
+#define TIMER1_PS_BITS ( _BV(CS11) | _BV(CS10) )
+#elif TIMER1_PRESCALE == 8
+#define TIMER1_PS_BITS ( _BV(CS11) )
+#elif TIMER1_PRESCALE == 1
+#define TIMER1_PS_BITS ( _BV(CS10) )
+#elif TIMER1_PRESCALE == 0
+#define TIMER1_PS_BITS ( 0 )
+#else 
+#error "TIMER1_PRESCALE is invalid!"
+#endif
+
+#if TIMER2_PRESCALE == 1024
+#define TIMER2_PS_BITS ( _BV(CS22) | _BV(CS21) | _BV(CS20) )
+#elif TIMER2_PRESCALE == 256
+#define TIMER2_PS_BITS ( _BV(CS21) | _BV(CS22) )
+#elif TIMER2_PRESCALE == 128
+#define TIMER2_PS_BITS ( _BV(CS22) | _BV(CS20) )
+#elif TIMER2_PRESCALE == 64
+#define TIMER2_PS_BITS ( _BV(CS22) )
+#elif TIMER2_PRESCALE == 32
+#define TIMER2_PS_BITS ( _BV(CS21) | _BV(CS20) )
+#elif TIMER2_PRESCALE == 8
+#define TIMER2_PS_BITS ( _BV(CS21) )
+#elif TIMER2_PRESCALE == 1
+#define TIMER2_PS_BITS ( _BV(CS20) )
+#elif TIMER2_PRESCALE == 1
+#define TIMER2_PS_BITS ( 0 )
+#else
+#error "TIMER2_PRESCALE is invalid!"
+#endif
 
 
 #endif

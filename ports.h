@@ -1,8 +1,6 @@
 #ifndef _PORTS_H_
 #define _PORTS_H_
 
-#include "config.h"
-
 /* Automated pin/port/ddr defines */
 #define GLUE(A,B) A##B
 #define GLUE3(A,B,C) A##B##C
