@@ -2,6 +2,19 @@
 #define _CONFIG_H_
 #include "types.h"
 
+// Cubes
+#define CUBE_SIZE 2
+#define CUBE_HEIGHT CUBE_SIZE
+#define CUBE_WIDTH CUBE_SIZE
+#define CUBE_DEPTH CUBE_SIZE
+
+#define DISALLOW_UNDO_OF_PREVIOUS_SLIDE
+#define CUBE_STEP_ANIMATION_DELAY_MS 50
+#define CUBE_SWAP_DELAY_MS 80
+
+// Random bugs
+#define NUM_BUGS 10
+
 /**
  * TLC
  */
@@ -22,7 +35,7 @@
 
 #define DOT_CORRECTION_BLUE 63
 #define DOT_CORRECTION_GREEN 63
-#define DOT_CORRECTION_RED 63 //49
+#define DOT_CORRECTION_RED 30 //49
 
 #define LED_WIDTH 4
 #define LED_HEIGHT 4

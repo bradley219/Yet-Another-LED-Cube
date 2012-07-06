@@ -9,6 +9,12 @@
 #include "ports.h"
 #include "driver.h"
 #include "tests.h"
+#include "color.h"
+#include "random_bugs.h"
+#include "cubes.h"
+
+void analog_init(void);
+void analog_srand(void);
 
 #endif // ifndef _SHARK_H_
 
