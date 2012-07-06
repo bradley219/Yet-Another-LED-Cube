@@ -5,8 +5,10 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "types.h"
 #include "config.h"
 #include "driver.h"
+#include "asmdriver.h"
 
 static volatile uint16_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
 static volatile uint16_t current_row = 0;
@@ -15,47 +17,6 @@ static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 static uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
-void tlc_blank(void)
-{
-	TLC_BLANK_PORT |= _BV(TLC_BLANK);
-}
-void tlc_unblank(void)
-{
-	// Reset TLC timing
-	//tlc_blank();
-	TCNT1 = 0;
-	TIFR1 |= _BV(TOV1);
-	TLC_BLANK_PORT &= ~_BV(TLC_BLANK);
-}
-void tlc_gs_input_mode(void)
-{
-	TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
-}
-void tlc_dc_input_mode(void)
-{
-	TLC_VPRG_PORT |= _BV(TLC_VPRG);
-}
-void tlc_latch(void)
-{
-	TLC_XLAT_PORT |= _BV(TLC_XLAT); // 10 ns min
-	TLC_XLAT_PORT &= ~_BV(TLC_XLAT);
-}
-void enable_xlat(void)
-{
-	TCCR1A |= _BV(COM1A1);
-}
-void disable_xlat(void)
-{
-	TCCR1A &= ~_BV(COM1A1);
-}
-void enable_auto_blanking(void)
-{
-	TCCR1A |= _BV(COM1B1);
-}
-void disable_auto_blanking(void)
-{
-	TCCR1A &= ~_BV(COM1B1);
-}
 void tlc_timer_init(void)
 {
 
@@ -268,13 +229,6 @@ void shift_register_blank(void)
 void shift_register_unblank(void)
 {
 	SHIFT_REG_MR_PORT |= _BV(SHIFT_REG_MR);
-}
-void shift_register_shift(void)
-{
-	SHIFT_REG_CP_PORT |=  _BV(SHIFT_REG_CP);
-	asm volatile( "nop\n\tnop\n\t" );
-	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
-	asm volatile( "nop\n\tnop\n\t" );
 }
 void shift_register_init(void) 
 {

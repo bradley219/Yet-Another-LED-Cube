@@ -1,5 +1,6 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
+#include "types.h"
 #include "config.h"
 #include "ports.h"
 

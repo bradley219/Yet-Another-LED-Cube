@@ -1,6 +1,5 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
-#include "types.h"
 
 // Cubes
 #define CUBE_SIZE 2
@@ -35,7 +34,7 @@
 
 #define DOT_CORRECTION_BLUE 63
 #define DOT_CORRECTION_GREEN 63
-#define DOT_CORRECTION_RED 30 //49
+#define DOT_CORRECTION_RED 42 //49
 
 #define LED_WIDTH 4
 #define LED_HEIGHT 4

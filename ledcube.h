@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <avr/io.h>
 #include <util/delay.h> 
+#include "types.h"
 #include "config.h"
 #include "ports.h"
 #include "driver.h"
