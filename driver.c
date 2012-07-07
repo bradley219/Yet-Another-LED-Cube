@@ -5,6 +5,7 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "types.h"
 #include "config.h"
 #include "driver.h"
@@ -17,12 +18,53 @@ static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 static uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
+void tlc_blank2(void)
+{
+	TLC_BLANK_PORT |= _BV(TLC_BLANK);
+}
+void tlc_gs_input_mode2(void)
+{
+	TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
+}
+void tlc_dc_input_mode2(void)
+{
+	TLC_VPRG_PORT |= _BV(TLC_VPRG);
+}
+void tlc_latch2(void)
+{
+	TLC_XLAT_PORT |= _BV(TLC_XLAT); // 10 ns min
+	TLC_XLAT_PORT &= ~_BV(TLC_XLAT);
+}
+void enable_xlat2(void)
+{
+	TCCR1A |= _BV(COM1A1);
+}
+void disable_xlat2(void)
+{
+	TCCR1A &= ~_BV(COM1A1);
+}
+void stop_timer1(void)
+{
+	TCCR1B &= ~TIMER1_PS_BITS;
+}
+void start_timer1(void)
+{
+	TCCR1B |= TIMER1_PS_BITS;
+}
+void start_gsclk(void)
+{
+	TCCR2B |= TIMER2_PS_BITS;
+}
+void stop_gsclk(void)
+{
+	TCCR2B &= ~TIMER2_PS_BITS;
+}
 void tlc_timer_init(void)
 {
 
 	// GSCLK timer -- high frequency
 	TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-	OCR2B = 0;
+	OCR2B = 1;
 	OCR2A = 3; // TOP value - min value is 3
 	TCCR2B = _BV(WGM22) | TIMER2_PS_BITS; // no prescale, start
 
@@ -36,6 +78,10 @@ void tlc_timer_init(void)
 	sei();
 	return;
 }
+
+/**
+ * SPI
+ */
 void tlc_spi_init(void)
 {
 	// DDRs
@@ -51,7 +97,14 @@ void tlc_spi_init(void)
 	SPSR |= _BV(SPI2X); // F_CPU/2
 	return;
 }
-void tlc_sclk_strobe(void)
+void tlc_shift8( uint8_t byte )
+{
+	SPDR = byte;
+	while( !(SPSR & _BV(SPIF)) );
+	return;
+}
+
+void tlc_sclk_strobe(void) // special case
 {
 	uint8_t spcr = SPCR;
 	TLC_SCLK_DDR |= _BV(TLC_SCLK); // SCK
@@ -64,6 +117,8 @@ void tlc_sclk_strobe(void)
 	SPCR = spcr; // restore SPI state
 	return;
 }
+
+// TLC data setting methods
 void tlc_set_dc( uint8_t channel, uint8_t dc )
 {
 	uint8_t triplet_idx = channel/4;
@@ -102,12 +157,6 @@ void tlc_set_all_dc( uint8_t dc )
 	}
 	return;
 }
-void tlc_shift8( uint8_t byte )
-{
-	SPDR = byte;
-	while( !(SPSR & _BV(SPIF)) );
-	return;
-}
 void tlc_update_gs(void)
 {
 	tlc_gs_input_mode();
@@ -116,6 +165,8 @@ void tlc_update_gs(void)
 	uint8_t *gsd = tlc_gs_live_data + (TLC_GS_ROW_BYTES * current_row) + TLC_GS_ROW_BYTES - 1;
 	while(bytes--)
 		tlc_shift8(*gsd--);
+
+	tlc_latch(); // latch data now
 
 	enable_xlat(); // latch data when ready
 	return;
@@ -230,6 +281,13 @@ void shift_register_unblank(void)
 {
 	SHIFT_REG_MR_PORT |= _BV(SHIFT_REG_MR);
 }
+void shift_register_shift2(void)
+{
+	SHIFT_REG_CP_PORT |=  _BV(SHIFT_REG_CP);
+	asm volatile( "nop\n\tnop\n\t" );
+	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
+	asm volatile( "nop\n\tnop\n\t" );
+}
 void shift_register_init(void) 
 {
 	SHIFT_REG_CP_DDR  |= _BV(SHIFT_REG_CP);
@@ -244,12 +302,25 @@ void shift_register_init(void)
 	return;
 }
 
-volatile uint8_t step_next = 0;
+/**
+ * TIMER 1 Overflow interrupt 
+ *  - Occurs at bottom of TCNT1
+ *  - Both BLANK and XLAT are HIGH
+ */
 ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 {
-	disable_xlat(); // disable latches until next data write
-	if( step_next )
-	{
+	disable_xlat();
+
+	if( --tlc_cycle_counts == 0 ) {
+
+		// Ensure blank is high
+		TCCR1A &= ~_BV(COM1B1);
+		TLC_BLANK_PORT |= _BV(TLC_BLANK);
+
+		stop_gsclk();
+		stop_timer1();
+
+		// We are already blanked, do the shift register change first to give it time
 		if( current_row == 0 )
 		{
 			SHIFT_REG_SIN_PORT |= _BV(SHIFT_REG_SIN);
@@ -260,27 +331,25 @@ ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 		{
 			shift_register_shift();
 		}
-		step_next = 0;
+			
 
-		// Reset TLC timing
-		TCNT1 = 0;
-		TIFR1 |= _BV(TOV1);
-		enable_auto_blanking();
-	}
-	if( --tlc_cycle_counts == 0 )
-	{
+		tlc_update_gs(); // feed in new data and latch it in
+		
 		current_row++;
-
 		if( current_row >= NUM_ROWS ) {
 			current_row = 0;
 		}
 
-		disable_auto_blanking();
-		tlc_blank();
-		tlc_update_gs();
-		step_next = 1;
 		tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
+
+		TLC_BLANK_PORT &= ~_BV(TLC_BLANK);
+		TCCR1A |= _BV(COM1B1);
+		TIFR1 |= _BV(TOV1); // Clear any pending interrupt flags in case we hit one while in here
+		start_gsclk();
+		start_timer1();
 	}
+	
+
 	return;
 }
 void set_led( uint8_t x, uint8_t y, uint8_t z, rgb_t *color )

@@ -34,7 +34,7 @@ TARGET = ledcube
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 #OPT = 0
 #OPT = s
-OPT = 3
+OPT = s
 
 
 # List C source files here. (C dependencies are automatically generated.)
@@ -126,6 +126,7 @@ AVRDUDE_DRAGON = dragon_isp
 AVRDUDE_MKII = avrispmkII
 AVRDUDE_PORT = usb
 AVRDUDE_CONF = /usr/local/etc/avrdude.conf
+#AVRDUDE_VERBOSITY = -vv -B0.13
 AVRDUDE_VERBOSITY = -vv -B0.13
 AVRDUDE_MCU = m328p
 

@@ -61,7 +61,6 @@ enable_auto_blanking:
 	sts TCCR1A,r31
 	ret
 .endfunc
-
 .global disable_auto_blanking
 .func disable_auto_blanking
 disable_auto_blanking:
