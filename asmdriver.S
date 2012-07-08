@@ -62,6 +62,7 @@ enable_auto_blanking:
 	ret
 .endfunc
 .global disable_auto_blanking
+
 .func disable_auto_blanking
 disable_auto_blanking:
 	lds r31,TCCR1A
@@ -69,6 +70,56 @@ disable_auto_blanking:
 	sts TCCR1A,r31
 	ret
 .endfunc
+
+.global stop_timer1
+.func stop_timer1
+stop_timer1:
+	lds r31,TCCR1B
+	andi r31,~TIMER1_PS_BITS
+	sts TCCR1B,r31
+	ret
+.endfunc
+
+.global start_timer1
+.func start_timer1
+start_timer1:
+	lds r31,TCCR1B
+	ori r31,TIMER1_PS_BITS
+	sts TCCR1B,r31
+	ret
+.endfunc
+
+.global start_gsclk
+.func start_gsclk
+start_gsclk:
+	lds r31,TCCR2B
+	ori r31,TIMER2_PS_BITS
+	sts TCCR2B,r31
+	ret
+.endfunc
+
+.global stop_gsclk
+.func stop_gsclk
+stop_gsclk:
+	lds r31,TCCR2B
+	andi r31,~TIMER2_PS_BITS
+	sts TCCR2B,r31
+	ret
+.endfunc
+
+.global tlc_shift8
+.func tlc_shift8
+tlc_shift8: ; r24 will contain data
+	sts SPDR,r24
+1:
+	lds r31,SPSR
+	sbrs r31,SPIF
+	rjmp 1b
+	ret
+.endfunc
+
+
+
 
 .global shift_register_shift
 .func shift_register_shift

@@ -18,50 +18,8 @@ static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 static uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
-void tlc_blank2(void)
-{
-	TLC_BLANK_PORT |= _BV(TLC_BLANK);
-}
-void tlc_gs_input_mode2(void)
-{
-	TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
-}
-void tlc_dc_input_mode2(void)
-{
-	TLC_VPRG_PORT |= _BV(TLC_VPRG);
-}
-void tlc_latch2(void)
-{
-	TLC_XLAT_PORT |= _BV(TLC_XLAT); // 10 ns min
-	TLC_XLAT_PORT &= ~_BV(TLC_XLAT);
-}
-void enable_xlat2(void)
-{
-	TCCR1A |= _BV(COM1A1);
-}
-void disable_xlat2(void)
-{
-	TCCR1A &= ~_BV(COM1A1);
-}
-void stop_timer1(void)
-{
-	TCCR1B &= ~TIMER1_PS_BITS;
-}
-void start_timer1(void)
-{
-	TCCR1B |= TIMER1_PS_BITS;
-}
-void start_gsclk(void)
-{
-	TCCR2B |= TIMER2_PS_BITS;
-}
-void stop_gsclk(void)
-{
-	TCCR2B &= ~TIMER2_PS_BITS;
-}
 void tlc_timer_init(void)
 {
-
 	// GSCLK timer -- high frequency
 	TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
 	OCR2B = 1;
@@ -95,12 +53,6 @@ void tlc_spi_init(void)
 
 	SPCR = _BV(SPE) | _BV(MSTR);
 	SPSR |= _BV(SPI2X); // F_CPU/2
-	return;
-}
-void tlc_shift8( uint8_t byte )
-{
-	SPDR = byte;
-	while( !(SPSR & _BV(SPIF)) );
 	return;
 }
 
@@ -281,13 +233,6 @@ void shift_register_blank(void)
 void shift_register_unblank(void)
 {
 	SHIFT_REG_MR_PORT |= _BV(SHIFT_REG_MR);
-}
-void shift_register_shift2(void)
-{
-	SHIFT_REG_CP_PORT |=  _BV(SHIFT_REG_CP);
-	asm volatile( "nop\n\tnop\n\t" );
-	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
-	asm volatile( "nop\n\tnop\n\t" );
 }
 void shift_register_init(void) 
 {
