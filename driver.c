@@ -159,6 +159,7 @@ void tlc_set_all_dc( uint8_t dc )
 }
 void tlc_update_gs(void)
 {
+	asm volatile( "wdr\n\t" );
 	tlc_gs_input_mode();
 
 	uint16_t bytes = TLC_GS_ROW_BYTES;
@@ -367,10 +368,17 @@ void set_led_coord( coord_t *coord, rgb_t *color )
 {
 	set_led( coord->x, coord->y, coord->z, color );
 }
+void wdt_init(void)
+{
+	WDTCSR |= _BV(WDCE);
+	WDTCSR = _BV(WDE);// | _BV(WDP1) | _BV(WDP2) | _BV(WDP0);// | _BV(WDP0);
+	return;
+}
 void led_driver_init(void)
 {
 	shift_register_init();
 	tlc_init();
+	wdt_init();
 	return;
 }
 

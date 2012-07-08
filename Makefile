@@ -16,11 +16,11 @@ BAUD_RATE = 115200
 
 
 NORMAL_LFUSE = 0xff
-NORMAL_HFUSE = 0xdf
+NORMAL_HFUSE = 0xd7
 NORMAL_EFUSE = 0x04
 
 DEBUGGING_LFUSE = 0xff
-DEBUGGING_HFUSE = 0x9f
+DEBUGGING_HFUSE = 0x97
 DEBUGGING_EFUSE = 0x04
 
 
@@ -34,13 +34,13 @@ TARGET = ledcube
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 #OPT = 0
 #OPT = s
-OPT = s
+OPT = 3
 
 
 # List C source files here. (C dependencies are automatically generated.)
 
 SRC = \
-	  $(TARGET).c driver.c color.c random_bugs.c cubes.c
+	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c
 
 CXXSRC = 
 

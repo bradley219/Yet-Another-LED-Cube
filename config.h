@@ -8,8 +8,8 @@
 #define CUBE_DEPTH CUBE_SIZE
 
 #define DISALLOW_UNDO_OF_PREVIOUS_SLIDE
-#define CUBE_STEP_ANIMATION_DELAY_MS 50
-#define CUBE_SWAP_DELAY_MS 200
+#define CUBE_STEP_ANIMATION_DELAY_MS 0//50
+#define CUBE_SWAP_DELAY_MS 0//70
 
 // Random bugs
 #define NUM_BUGS 10
@@ -26,13 +26,13 @@
 #define TLC_PWM_PERIOD (4096 * 1)
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
-#define PWM_MAX_BLUE  350
-#define PWM_MAX_GREEN 500
+#define PWM_MAX_BLUE  2095
+#define PWM_MAX_GREEN 2095
 #define PWM_MAX_RED   4095
 
 #define DOT_CORRECTION_BLUE  63
 #define DOT_CORRECTION_GREEN 63
-#define DOT_CORRECTION_RED 	 45
+#define DOT_CORRECTION_RED 	 55
 
 #define LED_WIDTH 4
 #define LED_HEIGHT 4
@@ -45,7 +45,9 @@
 
 #define NUM_TLC_CHIPS 1
 
-/* Pin definitions */
+/**
+ * Pins
+ */
 #define TLC_VPRG_PORT_LETTER B
 #define TLC_VPRG_PORT_NUMBER 0
 

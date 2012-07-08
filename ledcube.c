@@ -1,11 +1,12 @@
 #ifndef _LEDCUBE_SOURCE_
 #define _LEDCUBE_SOURCE_
 #include "ledcube.h"
+#include "avr/eeprom.h"
+
 
 int main(void)
 {
-	analog_init();
-	analog_srand();
+	eeprom_srand();
 
 	led_driver_init();
 	tlc_set_all_gs(0);
@@ -15,37 +16,22 @@ int main(void)
 	volatile unsigned long counter = 0;
 	while(1) 
 	{
+		//purple_test();
+
 		cubes_task();
 		counter++;
 	}
-
 	return 0;
 }
 
-void analog_srand(void)
+static unsigned long EEMEM analog_seed = 0;
+void eeprom_srand(void)
 {
-	uint8_t admux = ADMUX;
-	uint8_t adcsra = ADCSRA;
-	uint16_t data = 1;
-	ADMUX = _BV(REFS0) | _BV(MUX0); // AVcc reference, ADC1 input
-	ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0); // prescale 128
-
-	long seed = 1;
-	for( int i = 0; i < 100; i++ ) {
-		
-		_delay_us(data);
-		
-		ADCSRA |= _BV(ADSC);
-		while( !(ADCSRA & _BV(ADIF)) );
-		data = ADCL;
-		data |= ADCH << 8;
-
-		seed += data * data;
-	}
+	volatile unsigned long seed;
+	eeprom_read_block( &seed, &analog_seed, sizeof(analog_seed) );
 	srand(seed);
-
-	ADCSRA = adcsra;
-	ADMUX = admux;
+	seed++;
+	eeprom_write_block( &seed, &analog_seed, sizeof(analog_seed) );
 	return;
 }
 void analog_init(void)
