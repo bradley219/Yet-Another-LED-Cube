@@ -11,6 +11,9 @@
 #include "driver.h"
 #include "asmdriver.h"
 
+#define TLC_DC_INPUT_MODE() TLC_VPRG_PORT |= _BV(TLC_VPRG)
+#define TLC_LATCH() TLC_XLAT_PORT |= _BV(TLC_XLAT); TLC_XLAT_PORT &= ~_BV(TLC_XLAT)
+
 volatile uint8_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
 volatile uint16_t current_row = 0;
 static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
@@ -109,9 +112,15 @@ void tlc_set_all_dc( uint8_t dc )
 	}
 	return;
 }
+void tlc_shift8( uint8_t byte )
+{
+	SPDR = byte;
+	while( !(SPSR & _BV(SPIF)) );
+	return;
+}
 void tlc_update_dc(void)
 {
-	tlc_dc_input_mode();
+	TLC_DC_INPUT_MODE();
 
 	uint16_t bytes = TLC_DC_BYTES;
 	uint8_t *dcd = tlc_dot_correction_data + TLC_DC_BYTES - 1;
@@ -119,7 +128,7 @@ void tlc_update_dc(void)
 	{
 		tlc_shift8(*dcd--);
 	}
-	tlc_latch(); // latch data
+	TLC_LATCH(); // latch data
 
 	// Send GS data, then strobe SCK
 	tlc_update_gs();

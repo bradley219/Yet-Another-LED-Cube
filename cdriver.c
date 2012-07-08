@@ -43,12 +43,6 @@ void stop_gsclk(void)
 {
 	TCCR2B &= ~TIMER2_PS_BITS;
 }
-void tlc_shift8( uint8_t byte )
-{
-	SPDR = byte;
-	while( !(SPSR & _BV(SPIF)) );
-	return;
-}
 void tlc_update_gs(void)
 {
 	asm volatile( "wdr\n\t" );
