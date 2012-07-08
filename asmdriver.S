@@ -136,7 +136,7 @@ tlc_update_gs:
 
 	TLC_LATCH
 
-	ENABLE_XLAT
+	;ENABLE_XLAT
 
 	ret
 .endfunc
@@ -157,7 +157,7 @@ __vector_13:
 	in r16,_SFR_IO_ADDR(SREG); <- SAVE the freaking status register! this killed so many hours for me
 	push r16
 
-	DISABLE_XLAT
+	;DISABLE_XLAT
 
 	lds r17,tlc_cycle_counts
 	dec r17
