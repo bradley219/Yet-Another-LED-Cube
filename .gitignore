@@ -6,7 +6,6 @@
 *.elf
 *.lst
 *.map
-*.eep
 *.lss
 *.sym
 # Compiled Dynamic libraries

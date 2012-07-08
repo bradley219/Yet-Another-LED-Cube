@@ -80,7 +80,7 @@ void render_cubes(void)
 				vertex.x = cx * CUBE_WIDTH;
 				vertex.y = cy * CUBE_HEIGHT;
 				vertex.z = cz * CUBE_DEPTH;
-				render_cube_starting_at_vertex( &vertex, &cubespace[cx][cy][cz] );
+				render_cube_starting_at_vertex( &vertex, &cubespace[cx][cy][cz].color );
 			}
 		}
 	}
