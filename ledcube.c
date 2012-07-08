@@ -18,6 +18,7 @@ int main(void)
 	{
 		//purple_test();
 
+		//ledtest1();
 		cubes_task();
 		counter++;
 	}

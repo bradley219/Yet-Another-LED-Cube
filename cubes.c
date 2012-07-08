@@ -46,8 +46,8 @@ void cubes_init(void)
 				else 
 				{
 					hsb_to_rgb( &hsb, &cubespace[x][y][z].color );
-					hsb.h = (double)rand() / (double)RAND_MAX;
-					//hsb.h += (double)sizeof(cube_t)/(double)sizeof(cubespace);
+					//hsb.h = (double)rand() / (double)RAND_MAX;
+					hsb.h += (double)sizeof(cube_t)/(double)sizeof(cubespace);
 				}
 			}
 		}

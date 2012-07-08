@@ -2,4 +2,5 @@
 #define _TESTS_H_
 void led_test(void);
 void purple_test(void);
+void ledtest1(void);
 #endif

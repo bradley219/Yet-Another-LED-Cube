@@ -11,11 +11,11 @@
 #include "driver.h"
 #include "asmdriver.h"
 
-static volatile uint16_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
-static volatile uint16_t current_row = 0;
+volatile uint8_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
+volatile uint16_t current_row = 0;
 static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 
-static uint8_t tlc_gs_live_data[TLC_GS_BYTES];
+uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
 void tlc_timer_init(void)
@@ -109,21 +109,6 @@ void tlc_set_all_dc( uint8_t dc )
 	}
 	return;
 }
-void tlc_update_gs(void)
-{
-	asm volatile( "wdr\n\t" );
-	tlc_gs_input_mode();
-
-	uint16_t bytes = TLC_GS_ROW_BYTES;
-	uint8_t *gsd = tlc_gs_live_data + (TLC_GS_ROW_BYTES * current_row) + TLC_GS_ROW_BYTES - 1;
-	while(bytes--)
-		tlc_shift8(*gsd--);
-
-	tlc_latch(); // latch data now
-
-	enable_xlat(); // latch data when ready
-	return;
-}
 void tlc_update_dc(void)
 {
 	tlc_dc_input_mode();
@@ -180,7 +165,9 @@ void tlc_set_all_gs( uint16_t gs )
 }
 void tlc_gs_data_latch(void)
 {
+	cli();
 	memcpy( tlc_gs_live_data, tlc_gs_data, sizeof(tlc_gs_data) );
+	sei();
 	return;
 }
 void tlc_set_all_dc_rgb( rgb_t *dc )
@@ -199,7 +186,7 @@ void tlc_init(void)
 	TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
 	TLC_VPRG_DDR |= _BV(TLC_VPRG); 
 
-	tlc_blank(); // start with blank on
+	TLC_BLANK_PORT |= _BV(TLC_BLANK);
 	
 	TLC_BLANK_DDR |= _BV(TLC_BLANK);
 	TLC_GSCLK_DDR |= _BV(TLC_GSCLK);
@@ -243,61 +230,17 @@ void shift_register_init(void)
 	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
 	SHIFT_REG_SIN_PORT &= ~_BV(SHIFT_REG_SIN);
 
+void tlc_shift8( uint8_t byte )
+{
+	SPDR = byte;
+	while( !(SPSR & _BV(SPIF)) );
+	return;
+}
 	shift_register_blank();
 	shift_register_unblank();
 	return;
 }
 
-/**
- * TIMER 1 Overflow interrupt 
- *  - Occurs at bottom of TCNT1
- *  - Both BLANK and XLAT are HIGH
- */
-ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
-{
-	disable_xlat();
-
-	if( --tlc_cycle_counts == 0 ) {
-
-		// Ensure blank is high
-		TCCR1A &= ~_BV(COM1B1);
-		TLC_BLANK_PORT |= _BV(TLC_BLANK);
-
-		stop_gsclk();
-		stop_timer1();
-
-		// We are already blanked, do the shift register change first to give it time
-		if( current_row == 0 )
-		{
-			SHIFT_REG_SIN_PORT |= _BV(SHIFT_REG_SIN);
-			shift_register_shift();
-			SHIFT_REG_SIN_PORT &= ~_BV(SHIFT_REG_SIN);
-		}
-		else
-		{
-			shift_register_shift();
-		}
-			
-
-		tlc_update_gs(); // feed in new data and latch it in
-		
-		current_row++;
-		if( current_row >= NUM_ROWS ) {
-			current_row = 0;
-		}
-
-		tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
-
-		TLC_BLANK_PORT &= ~_BV(TLC_BLANK);
-		TCCR1A |= _BV(COM1B1);
-		TIFR1 |= _BV(TOV1); // Clear any pending interrupt flags in case we hit one while in here
-		start_gsclk();
-		start_timer1();
-	}
-	
-
-	return;
-}
 void set_led( uint8_t x, uint8_t y, uint8_t z, rgb_t *color )
 {
 	uint8_t row = y + z * 4; // FIXME: don't hardcode 

@@ -10,6 +10,43 @@
 #include "tests.h"
 #include "driver.h"
 
+void ledtest1(void)
+{
+	uint16_t d = 100;
+	for( uint8_t c = 0; c < 3; c++ )
+	{
+		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
+		{
+			for( uint8_t z = 0; z < LED_DEPTH; z++ )
+			{
+				rgb_t rgb = { .r = 0, .g = 0, .b = 0 };
+				for( uint8_t x = 0; x < LED_WIDTH; x++ )
+				{
+					rgb.r = 1;
+					set_led( x, y, z, &rgb );
+					tlc_gs_data_latch();
+					_delay_ms(d);
+					
+					rgb.r = 0;
+					rgb.g = 1;
+					set_led( x, y, z, &rgb );
+					tlc_gs_data_latch();
+					_delay_ms(d);
+
+					rgb.g = 0;
+					rgb.b = 1;
+					set_led( x, y, z, &rgb );
+					tlc_gs_data_latch();
+					_delay_ms(d);
+					
+					rgb.b = 0;
+					set_led( x, y, z, &rgb );
+				}
+			}
+		}
+	}
+}
+
 void purple_test(void)
 {
 	for( uint8_t c = 0; c < 3; c++ )
