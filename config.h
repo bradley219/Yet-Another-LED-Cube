@@ -9,7 +9,7 @@
 
 #define DISALLOW_UNDO_OF_PREVIOUS_SLIDE
 #define CUBE_STEP_ANIMATION_DELAY_MS 50
-#define CUBE_SWAP_DELAY_MS 80
+#define CUBE_SWAP_DELAY_MS 60
 
 // Random bugs
 #define NUM_BUGS 10
@@ -23,20 +23,34 @@
 #define TLC_GS_ROW_BYTES (NUM_TLC_CHANNELS*12/8)
 #define TLC_GS_BYTES (TLC_GS_ROW_BYTES*NUM_ROWS)
 
-#define TLC_PWM_PERIOD (4096 * 1)
+//#define TLC_PWM_PERIOD (4096 * 1)
+#define TLC_PWM_PERIOD (4096 *3/2)
 #define TLC_CYCLE_COUNTS_PER_MULTIPLEX 2
 
 #define PWM_MAX_BLUE  2095
-#define PWM_MAX_GREEN 2095
+#define PWM_MAX_GREEN 1095
 #define PWM_MAX_RED   4095
 
 #define DOT_CORRECTION_BLUE  63
 #define DOT_CORRECTION_GREEN 63
 #define DOT_CORRECTION_RED 	 55
 
-#define LED_WIDTH 4
-#define LED_HEIGHT 4
-#define LED_DEPTH 4
+#define LED_SIZE 4
+#define LED_WIDTH LED_SIZE
+#define LED_HEIGHT LED_SIZE
+#define LED_DEPTH LED_SIZE
+
+#define LED_MAX_DIMENSION LED_WIDTH
+
+#if LED_DEPTH > LED_MAX_DIMENSION 
+#undef LED_MAX_DIMENSION
+#define LED_MAX_DIMENSION LED_DEPTH
+#endif
+
+#if LED_HEIGHT > LED_MAX_DIMENSION 
+#undef LED_MAX_DIMENSION
+#define LED_MAX_DIMENSION LED_HEIGHT
+#endif
 
 /**
  * DEBUGGING
@@ -79,11 +93,39 @@
 
 
 /* Timer prescales */
-#define TIMER0_PRESCALE 1
+#define TIMER0_PRESCALE 8
 #define TIMER1_PRESCALE 1
 #define TIMER2_PRESCALE TIMER1_PRESCALE
+#define SPI_PRESCALE 2
 
 /* Prescales */
+#if SPI_PRESCALE == 4
+#define SPI2X_BIT 0
+#define SPI_PS_BITS 0
+#elif SPI_PRESCALE == 16
+#define SPI2X_BIT 0
+#define SPI_PS_BITS (_BV(SPR0))
+#elif SPI_PRESCALE == 64
+#define SPI2X_BIT 0
+#define SPI_PS_BITS (_BV(SPR1))
+#elif SPI_PRESCALE == 128
+#define SPI2X_BIT 0
+#define SPI_PS_BITS (_BV(SPR1)|_BV(WPR0))
+#elif SPI_PRESCALE == 2
+#define SPI2X_BIT (_BV(SPI2X))
+#define SPI_PS_BITS 0
+#elif SPI_PRESCALE == 8
+#define SPI2X_BIT (_BV(SPI2X))
+#define SPI_PS_BITS (_BV(SPR0))
+#elif SPI_PRESCALE == 32
+#define SPI2X_BIT (_BV(SPI2X))
+#define SPI_PS_BITS (_BV(SPR1))
+#elif SPI_PRESCALE == 64
+#define SPI2X_BIT (_BV(SPI2X))
+#define SPI_PS_BITS (_BV(SPR1)|_BV(WPR0))
+#endif
+
+
 #if TIMER0_PRESCALE == 1024
 #define TIMER0_PS_BITS ( _BV(CS02) | _BV(CS00) )
 #elif TIMER0_PRESCALE == 256

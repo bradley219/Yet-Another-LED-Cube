@@ -46,8 +46,8 @@ void cubes_init(void)
 				else 
 				{
 					hsb_to_rgb( &hsb, &cubespace[x][y][z].color );
-					//hsb.h = (double)rand() / (double)RAND_MAX;
-					hsb.h += (double)sizeof(cube_t)/(double)sizeof(cubespace);
+					hsb.h = (double)rand() / (double)RAND_MAX;
+					//hsb.h += (double)sizeof(cube_t)/(double)sizeof(cubespace);
 				}
 			}
 		}
@@ -261,7 +261,8 @@ void cubes_task(void)
 {
 	render_cubes();
 	tlc_gs_data_latch();
-	_delay_ms(CUBE_SWAP_DELAY_MS);
+	//_delay_ms(CUBE_SWAP_DELAY_MS);
+	_delay_ms( rand() * 500L / RAND_MAX + 40L );
 	move_into_blank();
 }
 

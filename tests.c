@@ -55,7 +55,7 @@ void purple_test(void)
 		{
 			for( uint8_t z = 0; z < LED_DEPTH; z++ )
 			{
-				rgb_t rgb = { .r = 1, .g = 1, .b = 1.0 };
+				rgb_t rgb = { .r = 1, .g = 1, .b = 1 };
 				for( uint8_t x = 0; x < LED_WIDTH; x++ )
 				{
 					set_led( x, y, z, &rgb );

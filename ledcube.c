@@ -6,21 +6,29 @@
 
 int main(void)
 {
+
+	DDRD |= _BV(PORTD5);
+	OCR0A = 10;
+	OCR0B = OCR0A / 2;
+	TCCR0A = _BV(COM0B1) | _BV(WGM01) | _BV(WGM00);
+	TCCR0B = _BV(WGM02) | TIMER0_PS_BITS;
+
 	eeprom_srand();
 
 	led_driver_init();
 	tlc_set_all_gs(0);
 
-	cubes_init();
-
-	volatile unsigned long counter = 0;
+	fader_init();
 	while(1) 
 	{
-		//purple_test();
 
-		//ledtest1();
-		cubes_task();
-		counter++;
+		//cubes_init();
+		//for( uint8_t f = 0; f < 100; f++ )
+		//	cubes_task();	
+		
+		for( uint8_t f = 0; f < 10; f++ )
+			fader_task();	
+	
 	}
 	return 0;
 }

@@ -13,6 +13,7 @@
 #include "color.h"
 #include "random_bugs.h"
 #include "cubes.h"
+#include "fader.h"
 
 void eeprom_srand(void);
 

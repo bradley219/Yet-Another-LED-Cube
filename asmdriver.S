@@ -140,9 +140,12 @@ tlc_update_gs:
 
 	ret
 .endfunc
+#endif
+
 
 ; TIMER1_OVF_vect
 .global __vector_13
+.func __vector_13
 __vector_13:
 	push r16
 	push r17
@@ -162,8 +165,10 @@ __vector_13:
 	lds r17,tlc_cycle_counts
 	dec r17
 	sts tlc_cycle_counts,r17
-	brne v13getout
+	breq 5f
+	rjmp v13getout
 
+5:
 	; Ensure blank is high
 	lds r16,TCCR1A
 	andi r16,~_BV(COM1B1)
@@ -209,6 +214,8 @@ __vector_13:
 	sts TIFR1,r16
 
 	START_GSCLK
+	clr r16
+	sts TCNT1,r16
 	START_TIMER1
 
 v13getout:
@@ -226,4 +233,4 @@ v13getout:
 	pop r16
 
 	reti
-#endif
+.endfunc

@@ -54,8 +54,8 @@ void tlc_spi_init(void)
 	TLC_SCLK_DDR |= _BV(TLC_SCLK); // SCK
 	TLC_SCLK_PORT &= ~_BV(TLC_SCLK);
 
-	SPCR = _BV(SPE) | _BV(MSTR);
-	SPSR |= _BV(SPI2X); // F_CPU/2
+	SPCR = _BV(SPE) | _BV(MSTR) | SPI_PS_BITS;
+	SPSR |= SPI2X_BIT;
 	return;
 }
 
