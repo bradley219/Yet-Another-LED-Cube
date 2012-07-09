@@ -161,6 +161,34 @@ void tlc_set_gs( uint8_t channel, uint8_t row, uint16_t gs )
 
 	return;
 }
+void tlc_get_gs( uint8_t channel, uint8_t row, uint16_t *gs )
+{
+	uint8_t triplet_idx = channel/2;
+	channel -= ( 2 * triplet_idx );
+	triplet_idx *= 3;
+	
+	uint8_t *byte0 = tlc_gs_data + (row*TLC_GS_ROW_BYTES) + triplet_idx;
+	uint8_t *byte1 = byte0+1;
+	uint8_t *byte2 = byte1+1;
+
+	switch(channel)
+	{
+		case 0:
+			//*byte0 = gs & 0xff;
+			*gs = *byte0;
+			//*byte1 = (*byte1 & 0xf0) | (gs >> 8);
+			*gs |= (*byte1 & 0x0f) << 8;
+			break;
+		case 1:
+			*gs = *byte2 << 4;
+			*gs |= (*byte1 & 0xf0) >> 4;
+
+			//*byte1 = (*byte1 & 0x0f) | ((gs & 0x0f) << 4);
+			//*byte2 = gs >> 4;
+			break;
+	}
+	return;
+}
 void tlc_set_all_gs( uint16_t gs )
 {
 	for( uint8_t row = 0; row < NUM_ROWS; row++ )
@@ -250,20 +278,57 @@ void tlc_shift8( uint8_t byte )
 	return;
 }
 
+void set_led_raw( uint8_t x, uint8_t y, uint8_t z, uint16_t red, uint16_t green, uint16_t blue )
+{
+	uint8_t row = y + z * 4; // FIXME: don't hardcode 
+
+	uint8_t chanstart = x * 3;
+	tlc_set_gs( chanstart,   row, red );
+	tlc_set_gs( chanstart+1, row, green );
+	tlc_set_gs( chanstart+2, row, blue );
+
+	return;
+}
 void set_led( uint8_t x, uint8_t y, uint8_t z, rgb_t *color )
 {
 	uint8_t row = y + z * 4; // FIXME: don't hardcode 
 
 	uint8_t chanstart = x * 3;
-	tlc_set_gs( chanstart,   row, color->r * (double)PWM_MAX_RED );
-	tlc_set_gs( chanstart+1, row, color->g * (double)PWM_MAX_GREEN );
-	tlc_set_gs( chanstart+2, row, color->b * (double)PWM_MAX_BLUE );
+
+	uint16_t red = color->r * (double)PWM_MAX_RED;
+	uint16_t green = color->g * (double)PWM_MAX_GREEN;
+	uint16_t blue = color->b * (double)PWM_MAX_BLUE;
+
+	tlc_set_gs( chanstart,   row, red );
+	tlc_set_gs( chanstart+1, row, green );
+	tlc_set_gs( chanstart+2, row, blue );
+
+	return;
+}
+void get_led( uint8_t x, uint8_t y, uint8_t z, rgb_t *color )
+{
+	uint8_t row = y + z * 4; // FIXME: don't hardcode 
+
+	uint8_t chanstart = x * 3;
+
+	uint16_t red,green,blue;
+	tlc_get_gs( chanstart, row, &red );
+	tlc_get_gs( chanstart+1, row, &green );
+	tlc_get_gs( chanstart+2, row, &blue );
+
+	color->r = (double)red / (double)PWM_MAX_RED;
+	color->g = (double)green / (double)PWM_MAX_GREEN;
+	color->b = (double)blue / (double)PWM_MAX_BLUE;
 
 	return;
 }
 void set_led_coord( coord_t *coord, rgb_t *color )
 {
 	set_led( coord->x, coord->y, coord->z, color );
+}
+void get_led_coord( coord_t *coord, rgb_t *color )
+{
+	get_led( coord->x, coord->y, coord->z, color );
 }
 void wdt_init(void)
 {

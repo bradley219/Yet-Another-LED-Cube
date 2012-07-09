@@ -58,19 +58,18 @@
 	push r5
 ;clr r22 ; clear for carry operations
 	clr r22
-;mul m1M,m2M ; Multiply MSBs
+
+;mul m1M,m2M ; Multiply MSBs; result -> r4:r5
 	mul \m1M,\m2M
-;mov Res3,R0 ; copy to MSW Result
 	mov r4,r0
-;mov Res4,R1
 	mov r5,r1
-;mul m1L,m2L ; Multiply LSBs
+
+;mul m1L,m2L ; Multiply LSBs; result -> r2:r3
 	mul \m1L,\m2L
-;mov Res1,R0 ; copy to LSW Result
 	mov r2,r0
-;mov Res2,R1
 	mov r3,r1
-;mul m1M,m2L ; Multiply 1M with 2L
+
+;mul m1M,m2L ; Multiply 1M with 2L;
 	mul \m1M,\m2L
 ;add Res2,R0 ; Add to Result
 	add r3,r0

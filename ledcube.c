@@ -1,8 +1,8 @@
 #ifndef _LEDCUBE_SOURCE_
 #define _LEDCUBE_SOURCE_
 #include "ledcube.h"
-#include "avr/eeprom.h"
-
+#include <avr/eeprom.h>
+#include <util/delay.h>
 
 int main(void)
 {
@@ -18,17 +18,11 @@ int main(void)
 	led_driver_init();
 	tlc_set_all_gs(0);
 
-	fader_init();
+	snake_init();
+
 	while(1) 
 	{
-
-		//cubes_init();
-		//for( uint8_t f = 0; f < 100; f++ )
-		//	cubes_task();	
-		
-		for( uint8_t f = 0; f < 10; f++ )
-			fader_task();	
-	
+		snake_task();
 	}
 	return 0;
 }

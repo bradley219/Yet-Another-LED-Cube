@@ -40,7 +40,7 @@ OPT = s
 # List C source files here. (C dependencies are automatically generated.)
 
 SRC = \
-	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c
+	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c snake.c
 
 CXXSRC = 
 

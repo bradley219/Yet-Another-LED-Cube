@@ -14,6 +14,7 @@
 #include "random_bugs.h"
 #include "cubes.h"
 #include "fader.h"
+#include "snake.h"
 
 void eeprom_srand(void);
 

@@ -59,5 +59,17 @@ void hsb_to_rgb( hsb_t *hsbvals, rgb_t *output )
 
 	return;
 }
+void alpha_composite( rgb_t *current_rgb, rgb_t *top, double alpha ) 
+{
+
+	double original_alpha = 1.0;
+	double out_alpha = alpha + original_alpha * (1.0-alpha);
+
+	current_rgb->r = (top->r * alpha + current_rgb->r * original_alpha * (1.0 - alpha)) / out_alpha;
+	current_rgb->g = (top->g * alpha + current_rgb->g * original_alpha * (1.0 - alpha)) / out_alpha;
+	current_rgb->b = (top->b * alpha + current_rgb->b * original_alpha * (1.0 - alpha)) / out_alpha;
+
+	return;
+}
 
 #endif
