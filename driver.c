@@ -25,8 +25,8 @@ void tlc_timer_init(void)
 {
 	// GSCLK timer -- high frequency
 	TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-	OCR2B = 1;
-	OCR2A = 3; // TOP value - min value is 3
+	OCR2B = 0;
+	OCR2A = 1; // TOP value - min value is 3
 	TCCR2B = _BV(WGM22) | TIMER2_PS_BITS; // no prescale, start
 
 	// Timer 1 - BLANK / XLAT 

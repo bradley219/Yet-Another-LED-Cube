@@ -16,13 +16,22 @@ int main(void)
 	eeprom_srand();
 
 	led_driver_init();
-	tlc_set_all_gs(0);
+	tlc_set_all_gs(4095/2);
+	tlc_gs_data_latch();
 
 	snake_init();
 
+	uint16_t g = 0;
 	while(1) 
 	{
 		snake_task();
+		continue;
+		tlc_set_all_gs(g);
+		tlc_gs_data_latch();
+		_delay_us(500);
+		g++;
+		if( g > 4095 )
+			g = 0;
 	}
 	return 0;
 }

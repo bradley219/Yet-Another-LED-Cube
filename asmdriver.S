@@ -215,6 +215,7 @@ __vector_13:
 	START_GSCLK
 	clr r16
 	sts TCNT1,r16
+	sts TCNT1+1,r16 ; <- hey this is a 16-bit counter, doy!
 	START_TIMER1
 
 v13getout:
