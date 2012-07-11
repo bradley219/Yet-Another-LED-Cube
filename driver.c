@@ -22,6 +22,9 @@ static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
+volatile uint8_t spi_bytes_remaining = TLC_GS_ROW_BYTES;
+volatile uint8_t *spi_gsd = tlc_gs_live_data + sizeof(tlc_gs_live_data);
+
 void tlc_timer_init(void)
 {
 	// GSCLK timer -- high frequency
@@ -221,44 +224,17 @@ void tlc_set_all_dc_rgb( rgb_t *dc )
 	}
 }
 
-void tlc_gs_start_spi_chain(void)
-{
-	if( auto_gs_enabled )
-	{
-		// gs input mode
-		TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
-		SPSR |= _BV(SPIF);
-		SPCR |= _BV(SPIE);
-		sei();
-
-		SPDR = 0;
-	}
-
-	return;
-}
 ISR( SPI_STC_vect, ISR_BLOCK )
 {
-	static uint16_t bytes = TLC_GS_ROW_BYTES;
-	static uint8_t *gsd = NULL;
-
-	if( bytes == TLC_GS_ROW_BYTES )
+	asm volatile( "wdr\n\t" );
+	if( spi_bytes_remaining-- )
 	{
-		uint8_t row = current_row;
-		if( row == 0 )
-			row = NUM_ROWS-1;
-		else
-			row--;
-		gsd = tlc_gs_live_data + (TLC_GS_ROW_BYTES * row) + TLC_GS_ROW_BYTES - 0;
-	//	gsd = tlc_gs_live_data + TLC_GS_ROW_BYTES;
-	}
-
-	if( bytes-- )
-	{
-		SPDR = *--gsd;
+		SPDR = *--spi_gsd;
 	}
 	else 
 	{
-		bytes = TLC_GS_ROW_BYTES;
+		// enable timer1 interrupt
+		//TIMSK1 |= _BV(TOIE1);
 	}
 
 	return;
@@ -276,22 +252,27 @@ void tlc_init(void)
 	TLC_GSCLK_DDR |= _BV(TLC_GSCLK);
 	TLC_XLAT_DDR |= _BV(TLC_XLAT);
 
-	tlc_timer_init();
-	tlc_spi_init();
-
-	tlc_set_all_gs(0);
-	tlc_gs_data_latch();
-
 	rgb_t dc_rgb = { 
 		.r = DOT_CORRECTION_RED, 
 		.g = DOT_CORRECTION_GREEN, 
 		.b = DOT_CORRECTION_BLUE
 	};
 	tlc_set_all_dc_rgb( &dc_rgb );
+	
+	tlc_spi_init();
 	tlc_update_dc();
 
 	auto_gs_enabled = 1;
-	tlc_gs_start_spi_chain();
+	//tlc_gs_start_spi_chain();
+	
+	TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
+	SPSR |= _BV(SPIF);
+	SPCR |= _BV(SPIE);
+
+	tlc_timer_init();
+	
+	tlc_set_all_gs(0);
+	tlc_gs_data_latch();
 	
 	return;
 }
@@ -382,14 +363,14 @@ void get_led_coord( coord_t *coord, rgb_t *color )
 void wdt_init(void)
 {
 	WDTCSR |= _BV(WDCE);
-	WDTCSR = _BV(WDE);// | _BV(WDP1) | _BV(WDP2) | _BV(WDP0);// | _BV(WDP0);
+	WDTCSR = 0;//_BV(WDE);// | _BV(WDP1) | _BV(WDP2) | _BV(WDP0);// | _BV(WDP0);
 	return;
 }
 void led_driver_init(void)
 {
 	shift_register_init();
 	tlc_init();
-	//wdt_init();
+	wdt_init();
 	return;
 }
 

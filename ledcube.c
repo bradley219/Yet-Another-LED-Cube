@@ -26,16 +26,18 @@ void fader_task2(void)
 
 	_delay_ms(delay);
 
-	color.h += 0.0001;
+	color.h += 0.0002;
 	if( color.h >= 1 )
 		color.h -= 1;
-		
 
 	return;
 }
 
+volatile unsigned long loopcount = 0;
 int main(void)
 {
+
+	//_delay_ms(1000);
 
 	DDRD |= _BV(PORTD5);
 	OCR0A = 10;
@@ -53,23 +55,25 @@ int main(void)
 	snake_init();
 	//fader_init();
 
-	uint16_t g = 0;
+	uint16_t g = PWM_MAX_VAL * 7 / 8;
 	char inc = 1;
 	while(1) 
 	{
-		//snake_task();
-		//continue;
-
-		tlc_set_all_gs(g);
-		tlc_gs_data_latch();
-		g++;
-		_delay_us(1000);
-		if( g > PWM_MAX_VAL ) 
-			g = 0;
-		continue;
+		loopcount++;
 
 		//fader_task2();
 		//fader_task();
+		snake_task();
+		continue;
+
+		tlc_set_all_gs(g);
+		tlc_gs_data_latch();
+		g+=1;
+		_delay_ms(100);
+		if( g > PWM_MAX_VAL ) 
+			g = PWM_MAX_VAL * 7 / 8;
+		continue;
+
 		//cubes_task();
 	}
 	return 0;
