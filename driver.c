@@ -23,7 +23,7 @@ uint8_t tlc_gs_live_data[TLC_GS_BYTES];
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
 volatile uint8_t spi_bytes_remaining = TLC_GS_ROW_BYTES;
-volatile uint8_t *spi_gsd = tlc_gs_live_data + sizeof(tlc_gs_live_data);
+volatile uint8_t *spi_gsd = tlc_gs_live_data + sizeof(tlc_gs_live_data) - TLC_GS_ROW_BYTES;
 
 void tlc_timer_init(void)
 {

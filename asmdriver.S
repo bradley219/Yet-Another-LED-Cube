@@ -123,39 +123,9 @@ __vector_13: ; 76-87 clks
 	in XH,_SFR_IO_ADDR(SREG); <- SAVE the freaking status register! this killed so many hours for me
 	push XH
 
-	; Ensure blank is high
-	BLANK_TRUE 
-
-	; Latch in the data
-	TLC_LATCH 
-	
-	; Change the shift register bits
-	lds r16,current_row 
-	cpi	r16,0 
-	brne 2f 
-
-1: ; if( current_row == 0 ) 
-	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
-	SHIFT_REGISTER_SHIFT
-	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
-	rjmp 3f 
-
-2: ; else
-	SHIFT_REGISTER_SHIFT 
-
-3: ; Unblank as soon as finished shifting
-	BLANK_FALSE 
-
-	; Increment row number and save
-	inc r16 
-	cpi r16,NUM_ROWS 
-	brlo 4f 
-	clr r16
-
-4:
-	sts current_row,r16 
-
-	; Start shifting in the next data
+	;;
+	;; Prepare pointers for shifting in the next data
+	;;
 	; Load pointer
 	lds XL,spi_gsd
 	lds XH,spi_gsd+1
@@ -175,11 +145,47 @@ __vector_13: ; 76-87 clks
 	ldi r16,TLC_GS_ROW_BYTES-1 ; subtract 1 since we're sending the first byte here
 	sts spi_bytes_remaining,r16
 
-	; Load first byte and send
+	; Now we can blank the LEDs
+	; Ensure blank is high
+	BLANK_TRUE 
+	; Latch in the previously-clocked-in data
+	TLC_LATCH 
+	
+	; Change the shift register bits
+	lds r16,current_row 
+	cpi	r16,0 
+	brne 2f 
+
+1: ; if( current_row == 0 ) 
+	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
+	SHIFT_REGISTER_SHIFT
+	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
+
+	; Sync the data pointer
+	;ldi XL,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS) - TLC_GS_ROW_BYTES)
+	;ldi XH,hi8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS) - TLC_GS_ROW_BYTES)
+	rjmp 3f 
+
+2: ; else
+	SHIFT_REGISTER_SHIFT 
+
+3: ; Unblank as soon as finished shifting
+	BLANK_FALSE 
+
+	; Increment row number and save
+	inc r16 
+	cpi r16,NUM_ROWS 
+	brlo 4f 
+	clr r16
+
+4:
+	sts current_row,r16 
+
+	; Decrement X, load the first byte of data, and send
 	ld	r17,-X
 	out	_SFR_IO_ADDR(SPDR),r17
 
-	; Save pointer
+	; Save the new value of X pointer
 	sts	spi_gsd,XL
 	sts	spi_gsd+1,XH
 

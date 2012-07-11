@@ -47,9 +47,10 @@ int main(void)
 
 	eeprom_srand();
 
-	led_driver_init();
-	tlc_set_all_gs(4095/2);
+	tlc_set_all_gs(0);
 	tlc_gs_data_latch();
+	
+	led_driver_init();
 
 	//cubes_init();
 	snake_init();
@@ -63,8 +64,8 @@ int main(void)
 
 		//fader_task2();
 		//fader_task();
-		//snake_task();
-		//continue;
+		snake_task();
+		continue;
 
 		tlc_set_all_gs(g);
 		//tlc_set_all_gs(70);
