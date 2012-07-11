@@ -161,9 +161,6 @@ __vector_13: ; 76-87 clks
 	SHIFT_REGISTER_SHIFT
 	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
 
-	; Sync the data pointer
-	;ldi XL,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS) - TLC_GS_ROW_BYTES)
-	;ldi XH,hi8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS) - TLC_GS_ROW_BYTES)
 	rjmp 3f 
 
 2: ; else
