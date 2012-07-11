@@ -22,8 +22,8 @@ void fader_task(void)
 	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
 	rgb_t rgb;
 
-	long delay = rand() * 15L / RAND_MAX + 40;
-	delay = 40;
+	long delay = rand() * 25L / RAND_MAX + 20;
+	//delay = 50;
 
 	float max_bright = 0.5;
 	float min_bright = 0;
@@ -33,9 +33,9 @@ void fader_task(void)
 	float bright_step = (max_bright-min_bright) / (float)num_steps_requested;
 	uint8_t num_steps = num_steps_requested * 2 - 1;
 
-	color.h += 1.0 / 50.0;
+//	color.h += 1.0 / 50.0;
 //	color.h += 1.0 / 3.0;
-//	color.h += (double)rand() / (double)RAND_MAX * (1.0/3.0);
+	color.h += (double)rand() / (double)RAND_MAX * (1.0/3.0);
 	if( color.h >= 1 )
 		color.h -= 1;
 

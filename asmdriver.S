@@ -177,6 +177,9 @@ __vector_13:
 	STOP_GSCLK
 	STOP_TIMER1
 
+	; Latch in the data
+	TLC_LATCH
+
 	lds r16,current_row
 	cpi	r16,0
 	brne 2f 
@@ -189,7 +192,7 @@ __vector_13:
 	SHIFT_REGISTER_SHIFT
 3:
 
-	call tlc_update_gs
+	;call tlc_update_gs
 
 	lds r16,current_row
 	inc r16
@@ -217,6 +220,9 @@ __vector_13:
 	sts TCNT1,r16
 	sts TCNT1+1,r16 ; <- hey this is a 16-bit counter, doy!
 	START_TIMER1
+
+	; Start shifting in the next data
+	call tlc_gs_start_spi_chain
 
 v13getout:
 	pop r16

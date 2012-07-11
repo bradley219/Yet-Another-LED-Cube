@@ -5,5 +5,6 @@
 
 void fader_init(void);
 void fader_task(void);
+void fader_task2(void);
 
 #endif

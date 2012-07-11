@@ -14,6 +14,7 @@
 #define TLC_DC_INPUT_MODE() TLC_VPRG_PORT |= _BV(TLC_VPRG)
 #define TLC_LATCH() TLC_XLAT_PORT |= _BV(TLC_XLAT); TLC_XLAT_PORT &= ~_BV(TLC_XLAT)
 
+volatile uint8_t auto_gs_enabled = 0;
 volatile uint8_t tlc_cycle_counts = TLC_CYCLE_COUNTS_PER_MULTIPLEX;
 volatile uint16_t current_row = 0;
 static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
@@ -25,8 +26,8 @@ void tlc_timer_init(void)
 {
 	// GSCLK timer -- high frequency
 	TCCR2A = _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-	OCR2B = 0;
-	OCR2A = 1; // TOP value - min value is 3
+	OCR2B = TIMER2_GS_TRIGGER;
+	OCR2A = TIMER2_TOPVAL; // TOP value - min value is 3
 	TCCR2B = _BV(WGM22) | TIMER2_PS_BITS; // no prescale, start
 
 	// Timer 1 - BLANK / XLAT 
@@ -54,8 +55,8 @@ void tlc_spi_init(void)
 	TLC_SCLK_DDR |= _BV(TLC_SCLK); // SCK
 	TLC_SCLK_PORT &= ~_BV(TLC_SCLK);
 
-	SPCR = _BV(SPE) | _BV(MSTR) | SPI_PS_BITS;
-	SPSR |= SPI2X_BIT;
+	SPCR = _BV(SPE) | _BV(MSTR);// | SPI_PS_BITS;
+	SPSR |= _BV(SPI2X);
 	return;
 }
 
@@ -131,8 +132,11 @@ void tlc_update_dc(void)
 	TLC_LATCH(); // latch data
 
 	// Send GS data, then strobe SCK
+	SPCR &= ~_BV(SPIE);
+	SPSR |= _BV(SPIF);
 	tlc_update_gs();
 	tlc_sclk_strobe();
+	SPCR |= _BV(SPIE);
 
 	return;
 }
@@ -217,6 +221,49 @@ void tlc_set_all_dc_rgb( rgb_t *dc )
 	}
 }
 
+void tlc_gs_start_spi_chain(void)
+{
+	if( auto_gs_enabled )
+	{
+		// gs input mode
+		TLC_VPRG_PORT &= ~_BV(TLC_VPRG);
+		SPSR |= _BV(SPIF);
+		SPCR |= _BV(SPIE);
+		sei();
+
+		SPDR = 0;
+	}
+
+	return;
+}
+ISR( SPI_STC_vect, ISR_BLOCK )
+{
+	static uint16_t bytes = TLC_GS_ROW_BYTES;
+	static uint8_t *gsd = NULL;
+
+	if( bytes == TLC_GS_ROW_BYTES )
+	{
+		uint8_t row = current_row;
+		if( row == 0 )
+			row = NUM_ROWS-1;
+		else
+			row--;
+		gsd = tlc_gs_live_data + (TLC_GS_ROW_BYTES * row) + TLC_GS_ROW_BYTES - 0;
+	//	gsd = tlc_gs_live_data + TLC_GS_ROW_BYTES;
+	}
+
+	if( bytes-- )
+	{
+		SPDR = *--gsd;
+	}
+	else 
+	{
+		bytes = TLC_GS_ROW_BYTES;
+	}
+
+	return;
+}
+
 void tlc_init(void)
 {
 	// Set in/out data-directions
@@ -235,7 +282,6 @@ void tlc_init(void)
 	tlc_set_all_gs(0);
 	tlc_gs_data_latch();
 
-
 	rgb_t dc_rgb = { 
 		.r = DOT_CORRECTION_RED, 
 		.g = DOT_CORRECTION_GREEN, 
@@ -243,6 +289,9 @@ void tlc_init(void)
 	};
 	tlc_set_all_dc_rgb( &dc_rgb );
 	tlc_update_dc();
+
+	auto_gs_enabled = 1;
+	tlc_gs_start_spi_chain();
 	
 	return;
 }
@@ -340,7 +389,7 @@ void led_driver_init(void)
 {
 	shift_register_init();
 	tlc_init();
-	wdt_init();
+	//wdt_init();
 	return;
 }
 
