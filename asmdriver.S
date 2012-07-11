@@ -43,6 +43,16 @@
 	ori r18,TIMER2_PS_BITS
 	sts TCCR2B,r18
 .endm
+.macro BLANK_TRUE
+	lds r18,TCCR1A
+	andi r18,~_BV(COM1B1)
+	sts TCCR1A,r18
+.endm
+.macro BLANK_FALSE
+	lds r18,TCCR1A
+	ori r18,_BV(COM1B1)
+	sts TCCR1A,r18
+.endm
 .macro SHIFT_REGISTER_SHIFT
 	sbi _SFR_IO_ADDR(SHIFT_REG_CP_PORT),SHIFT_REG_CP
 	cbi _SFR_IO_ADDR(SHIFT_REG_CP_PORT),SHIFT_REG_CP
@@ -98,119 +108,52 @@
 	pop r22
 .endm
 
-.global tlc_update_gs
-.func tlc_update_gs
-tlc_update_gs:
-	
-	wdr
-
-	TLC_GS_INPUT_MODE
-
-	ldi r16,lo8(TLC_GS_ROW_BYTES)
-	ldi r17,hi8(TLC_GS_ROW_BYTES)
-
-	ldi XL,lo8(tlc_gs_live_data+TLC_GS_ROW_BYTES)
-	ldi XH,hi8(tlc_gs_live_data+TLC_GS_ROW_BYTES)
-
-	lds r20,current_row
-	lds r21,current_row+1
-
-	MUL16 r20,r21,r16,r17
-
-	add XL,r20
-	adc XH,r21
-
-1:	
-	ld	r18,-X
-	out	_SFR_IO_ADDR(SPDR),r18
-
-2:
-	lds r19,SPSR
-	sbrs r19,SPIF
-	rjmp 2b
-	
-	subi r16,1
-	sbci r17,0
-	brne 1b
-
-	TLC_LATCH
-
-	;ENABLE_XLAT
-
-	ret
-.endfunc
-#endif
-
 
 ; TIMER1_OVF_vect
 .global __vector_13
 .func __vector_13
-__vector_13:
-	wdr
+__vector_13: ; 76-87 clks
 
-	push r16 ;
-	push r17 ;
-	push r18 ;
-
+	wdr 
+	push r18 
+	push r16 
+	push r17 
 	push XL
 	push XH
-
 	in XH,_SFR_IO_ADDR(SREG); <- SAVE the freaking status register! this killed so many hours for me
 	push XH
 
-	;DISABLE_XLAT
-
-	;lds r17,tlc_cycle_counts
-	;dec r17
-	;sts tlc_cycle_counts,r17
-	;breq 5f
-	;rjmp v13getout
-
-5:
 	; Ensure blank is high
-	lds r16,TCCR1A
-	andi r16,~_BV(COM1B1)
-	sts TCCR1A,r16
-
-	;STOP_GSCLK
-	;STOP_TIMER1
+	BLANK_TRUE 
 
 	; Latch in the data
-	TLC_LATCH
+	TLC_LATCH 
 	
 	; Change the shift register bits
-	lds r16,current_row
-	cpi	r16,0
+	lds r16,current_row 
+	cpi	r16,0 
 	brne 2f 
-1: ; if( current_row == 0 )
-	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN
+
+1: ; if( current_row == 0 ) 
+	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
 	SHIFT_REGISTER_SHIFT
-	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN
-	rjmp 3f
+	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
+	rjmp 3f 
+
 2: ; else
-	SHIFT_REGISTER_SHIFT
-3:
-	
-	; Start gs clock and unblank as soon as finished shifting
-	;START_GSCLK
-	lds	r18,TCCR1A
-	ori r18,_BV(COM1B1)
-	sts TCCR1A,r18
+	SHIFT_REGISTER_SHIFT 
+
+3: ; Unblank as soon as finished shifting
+	BLANK_FALSE 
 
 	; Increment row number and save
-	inc r16
-	cpi r16,NUM_ROWS
-	brlo 4f
+	inc r16 
+	cpi r16,NUM_ROWS 
+	brlo 4f 
 	clr r16
+
 4:
-	sts current_row,r16
-
-	;ldi r17,TLC_CYCLE_COUNTS_PER_MULTIPLEX
-	;sts tlc_cycle_counts,r17
-
-;	clr r16
-;	sts TCNT1,r16
-;	sts TCNT1+1,r16
+	sts current_row,r16 
 
 	; Start shifting in the next data
 	; Load pointer
@@ -220,50 +163,50 @@ __vector_13:
 	; Compare to tlc_gs_live_data
 	ldi r16,lo8(tlc_gs_live_data)
 	ldi r17,hi8(tlc_gs_live_data)
-
 	cp	XL,r16
 	cpc	XH,r17
 	brne 5f
 
-	ldi r16,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS))
-	ldi r17,hi8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS))
-	sts spi_gsd,r16
-	sts spi_gsd+1,r17
-	mov	XL,r16
-	mov XH,r17
+	; If equal, reset to end of array
+	ldi XL,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS))
+	ldi XH,hi8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*NUM_ROWS))
 
-5:
-	ldi r16,TLC_GS_ROW_BYTES-1
+5: ; Store the number of bytes left to send for the SPI ISR routine
+	ldi r16,TLC_GS_ROW_BYTES-1 ; subtract 1 since we're sending the first byte here
 	sts spi_bytes_remaining,r16
 
+	; Load first byte and send
 	ld	r17,-X
 	out	_SFR_IO_ADDR(SPDR),r17
 
+	; Save pointer
 	sts	spi_gsd,XL
 	sts	spi_gsd+1,XH
 
-	;call tlc_gs_start_spi_chain
+	; Clear timer1 counter?
+	;clr r16
+	;sts TCNT1+1,r16
+	;sts TCNT1,r16
 
-;	clr r16
-;	sts TCNT1+1,r16
-;	sts TCNT1,r16
+ 	;Clear next interrupt flag ?
+	;lds	r16,TIFR1
+	;ori r16,_BV(TOV1)
+	;sts TIFR1,r16
 
-; Clear next interrupt flag 
-;	lds	r16,TIFR1
-;	ori r16,_BV(TOV1)
-;	sts TIFR1,r16
-;	START_TIMER1
-
-v13getout:
+	; Cleanup
 	pop XH
 	out _SFR_IO_ADDR(SREG),XH
 
 	pop XH
 	pop XL
 
-	pop r18
+	;START_TIMER1
 	pop r17
 	pop r16
+	pop r18
 
 	reti
+	
 .endfunc
+
+#endif

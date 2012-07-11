@@ -55,7 +55,7 @@ int main(void)
 	snake_init();
 	//fader_init();
 
-	uint16_t g = PWM_MAX_VAL * 7 / 8;
+	uint16_t g = 0;//PWM_MAX_VAL * 7 / 8;
 	char inc = 1;
 	while(1) 
 	{
@@ -63,15 +63,17 @@ int main(void)
 
 		//fader_task2();
 		//fader_task();
-		snake_task();
-		continue;
+		//snake_task();
+		//continue;
 
 		tlc_set_all_gs(g);
+		//tlc_set_all_gs(70);
 		tlc_gs_data_latch();
+		//while(1);
 		g+=1;
-		_delay_ms(100);
+		_delay_us(1000);
 		if( g > PWM_MAX_VAL ) 
-			g = PWM_MAX_VAL * 7 / 8;
+			g = 0;
 		continue;
 
 		//cubes_task();

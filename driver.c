@@ -37,7 +37,7 @@ void tlc_timer_init(void)
 	TCCR1A = _BV(COM1B1);  // non inverting, output on OC1B, BLANK
 	OCR1A = 1;             // duty factor on OC1A, XLAT is inside BLANK
 	OCR1B = 2;             // duty factor on BLANK (larger than OCR1A (XLAT))
-	ICR1 = TLC_PWM_PERIOD; // don't touch
+	ICR1 = TLC_PWM_PERIOD + 76 / 2;  // 76 is the minimum number of clock cycles the ISR takes to complete
 	TCCR1B = _BV(WGM13) | TIMER1_PS_BITS;   // Phase/freq correct PWM, ICR1 top, no prescale, start
 	TIMSK1 = _BV(TOIE1);
 	sei();
@@ -135,11 +135,13 @@ void tlc_update_dc(void)
 	TLC_LATCH(); // latch data
 
 	// Send GS data, then strobe SCK
-	SPCR &= ~_BV(SPIE);
-	SPSR |= _BV(SPIF);
-	tlc_update_gs();
+	uint8_t c = TLC_GS_ROW_BYTES;
+	while(c--)
+	{
+		SPDR = 0;
+		while( !(SPSR & _BV(SPIF)) );
+	}
 	tlc_sclk_strobe();
-	SPCR |= _BV(SPIE);
 
 	return;
 }
@@ -209,9 +211,9 @@ void tlc_set_all_gs( uint16_t gs )
 }
 void tlc_gs_data_latch(void)
 {
-	cli();
+	//cli();
 	memcpy( tlc_gs_live_data, tlc_gs_data, sizeof(tlc_gs_data) );
-	sei();
+	//sei();
 	return;
 }
 void tlc_set_all_dc_rgb( rgb_t *dc )
