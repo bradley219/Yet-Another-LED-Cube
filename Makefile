@@ -30,6 +30,8 @@ FORMAT = ihex
 # Target file name (without extension).
 TARGET = ledcube
 
+CONFIGFILE = config.h types.h
+
 # Optimization level, can be [0, 1, 2, 3, s]. 0 turns off optimization.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 #OPT = 0
@@ -41,6 +43,8 @@ OPT = 0
 
 SRC = \
 	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c snake.c
+
+
 
 CXXSRC = 
 
@@ -236,6 +240,14 @@ debug: $(TARGET).elf
 gdb:
 	$(GDB) $(TARGET).elf
 
+snake.o: snake.c snake.h
+asmdriver.o: asmdriver.S asmdriver.h
+color.o: color.c color.h
+cubes.o: cubes.c cubes.h
+driver.o: driver.c driver.h
+fader.o: fader.c fader.h
+ledcube.o: ledcube.c ledcube.h
+tests.o: tests.c tests.h
 
 # Eye candy.
 # AVR Studio 3.x does not check make's exit code but relies on
@@ -303,24 +315,24 @@ gccversion :
 	$(CC) $(ALL_CFLAGS) $(OBJ) --output $@ $(LDFLAGS) 
 
 # Compile: create object files from C++ source files.
-%.o : %.cpp
+%.o : %.cpp $(CONFIGFILE)
 	$(CXX) -c $(ALL_CFLAGS) $< -o $@ 
 
 
 # Compile: create object files from C source files.
-%.o : %.c
+%.o : %.c $(CONFIGFILE)
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) -c $(ALL_CFLAGS) -DRANDOM_SEED=$(shell date +%s)   $< -o $@ 
 
 
 # Compile: create assembler files from C source files.
-%.s : %.c
+%.s : %.c $(CONFIGFILE)
 	$(CC) -S $(ALL_CFLAGS) $< -o $@ 
 
 
 # Assemble: create object files from assembler source files.
-%.o : %.S
+%.o : %.S $(CONFIGFILE)
 	@echo
 	@echo $(MSG_ASSEMBLING) $<
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@ 
