@@ -5,8 +5,6 @@
 #include <avr/eeprom.h>
 #include <util/delay.h>
 
-
-/*
 void fader_task2(void)
 {
 	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
@@ -34,7 +32,7 @@ void fader_task2(void)
 		color.h -= 1;
 
 	return;
-}*/
+}
 
 volatile unsigned long loopcount = 0;
 int main(void)
@@ -47,7 +45,7 @@ int main(void)
 	tlc_gs_data_latch();
 	
 	led_driver_init();
-	sei();
+//	sei();
 
 	//cubes_init();
 	snake_init();
@@ -60,6 +58,7 @@ int main(void)
 		loopcount++;
 
 		snake_task();
+		continue;
 		//audio_task();
 		//fader_task2();
 		//fader_task();

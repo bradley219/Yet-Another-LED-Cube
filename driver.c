@@ -238,7 +238,6 @@ ISR( SPI_STC_vect, ISR_BLOCK )
 		// enable timer1 interrupt
 		//TIMSK1 |= _BV(TOIE1);
 	}
-
 	return;
 }
 
