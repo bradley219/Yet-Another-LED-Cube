@@ -1,9 +1,12 @@
 #ifndef _LEDCUBE_SOURCE_
 #define _LEDCUBE_SOURCE_
 #include "ledcube.h"
+#include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
 
+
+/*
 void fader_task2(void)
 {
 	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
@@ -31,19 +34,12 @@ void fader_task2(void)
 		color.h -= 1;
 
 	return;
-}
+}*/
 
 volatile unsigned long loopcount = 0;
 int main(void)
 {
-
-	//_delay_ms(1000);
-
-	DDRD |= _BV(PORTD5);
-	OCR0A = 10;
-	OCR0B = OCR0A / 2;
-	TCCR0A = _BV(COM0B1) | _BV(WGM01) | _BV(WGM00);
-	TCCR0B = _BV(WGM02) | TIMER0_PS_BITS;
+	//audio_init();
 
 	eeprom_srand();
 
@@ -51,33 +47,23 @@ int main(void)
 	tlc_gs_data_latch();
 	
 	led_driver_init();
+	sei();
 
 	//cubes_init();
 	snake_init();
 	//fader_init();
-
+	
 	uint16_t g = 0;//PWM_MAX_VAL * 7 / 8;
 	char inc = 1;
 	while(1) 
 	{
 		loopcount++;
 
+		snake_task();
+		//audio_task();
 		//fader_task2();
 		//fader_task();
-		snake_task();
-		continue;
-
-		tlc_set_all_gs(g);
-		//tlc_set_all_gs(70);
-		tlc_gs_data_latch();
-		//while(1);
-		g+=1;
-		_delay_us(1000);
-		if( g > PWM_MAX_VAL ) 
-			g = 0;
-		continue;
-
-		//cubes_task();
+		//snake_task();
 	}
 	return 0;
 }
@@ -90,12 +76,6 @@ void eeprom_srand(void)
 	srand(seed);
 	seed++;
 	eeprom_write_block( &seed, &analog_seed, sizeof(analog_seed) );
-	return;
-}
-void analog_init(void)
-{
-	// digital input disable
-	DIDR0 = _BV(ADC5D) | _BV(ADC4D) | _BV(ADC3D) | _BV(ADC2D) | _BV(ADC0D);
 	return;
 }
 #endif

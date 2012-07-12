@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "color.h"
 #include "driver.h"
 #include "cubes.h"
@@ -68,8 +69,11 @@ void render_cube_starting_at_vertex( coord_t *coord, rgb_t *color )
 	}
 	return;
 }
+
+
 void render_cubes(void)
 {
+
 	for( uint8_t cx = 0; cx < CW; cx++ )
 	{
 		for( uint8_t cy = 0; cy < CH; cy++ )

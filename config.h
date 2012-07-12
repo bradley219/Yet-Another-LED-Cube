@@ -1,6 +1,10 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+// Audio
+#define FFT_N	128		/* Number of samples (64,128,256,512). Don't forget to clean! */
+#define AUDIO_BUFFER_SIZE FFT_N
+
 // Cubes
 #define CUBE_SIZE 2
 #define CUBE_HEIGHT CUBE_SIZE

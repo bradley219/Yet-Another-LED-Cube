@@ -42,7 +42,7 @@ OPT = 0
 # List C source files here. (C dependencies are automatically generated.)
 
 SRC = \
-	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c snake.c
+	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c snake.c audio.c
 
 
 
@@ -55,7 +55,7 @@ CXXSRC =
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = asmdriver.S
+ASRC = asmdriver.S #ffft.S
 
 
 # List any extra directories to look for include files here.
@@ -248,6 +248,8 @@ driver.o: driver.c driver.h
 fader.o: fader.c fader.h
 ledcube.o: ledcube.c ledcube.h
 tests.o: tests.c tests.h
+audio.o: audio.c audio.h
+#ffft.o: ffft.S ffft.h window.h
 
 # Eye candy.
 # AVR Studio 3.x does not check make's exit code but relies on

@@ -15,6 +15,7 @@
 #include "cubes.h"
 #include "fader.h"
 #include "snake.h"
+#include "audio.h"
 
 void eeprom_srand(void);
 
