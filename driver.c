@@ -20,6 +20,7 @@ volatile uint16_t current_row = 0;
 static uint8_t tlc_dot_correction_data[TLC_DC_BYTES];
 
 uint8_t tlc_gs_live_data[TLC_GS_BYTES];
+//#define tlc_gs_data tlc_gs_live_data
 static uint8_t tlc_gs_data[TLC_GS_BYTES];
 
 volatile uint8_t spi_bytes_remaining = TLC_GS_ROW_BYTES;

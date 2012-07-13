@@ -114,57 +114,57 @@
 ;__vector_17:
 ;.endfunc
 
-;	; ADC_vect
-;	.global __vector_21
-;	.func __vector_21
-;	__vector_21:
-;		push r16
-;		in r16,_SFR_IO_ADDR(SREG)
-;		push r16
-;		push r17
-;		push XL
-;		push XH
-;	
-;		; Get data from ADC
-;		lds r16,ADCL ; 120
-;		lds r17,ADCH ; 121
-;		
-;		; Subtract 512
-;		subi r16,lo8(512)
-;		sbci r17,hi8(512)
-;	
-;		; Get pointer
-;		lds XL,abp
-;		lds XH,abp+1
-;	
-;		; Store data, inc pointer
-;		st X+,r16
-;		st X+,r17
-;	
-;		; Check for end of array
-;		lds r16,abc
-;		dec r16
-;		brne 1f
-;	
-;		; Reset pointer/counter
-;		ldi r16,AUDIO_BUFFER_SIZE
-;		ldi XL,lo8(audio_buffer)
-;		ldi XH,hi8(audio_buffer)
-;	
-;	1:
-;		; Store pointer/counter
-;		sts abc,r16
-;		sts abp,XL
-;		sts abp+1,XH
-;	
-;		pop XH
-;		pop XL
-;		pop r17
-;		pop r16
-;		out _SFR_IO_ADDR(SREG),r16
-;		pop r16
-;		reti
-;	.endfunc
+; ADC_vect
+.global __vector_21
+.func __vector_21
+__vector_21:
+	push r16
+	in r16,_SFR_IO_ADDR(SREG)
+	push r16
+	push r17
+	push XL
+	push XH
+
+	; Get data from ADC
+	lds r16,ADCL ; 120
+	lds r17,ADCH ; 121
+	
+	; Subtract 512
+	subi r16,lo8(512)
+	sbci r17,hi8(512)
+
+	; Get pointer
+	lds XL,abp
+	lds XH,abp+1
+
+	; Store data, inc pointer
+	st X+,r16
+	st X+,r17
+
+	; Check for end of array
+	lds r16,abc
+	dec r16
+	brne 1f
+
+	; Reset pointer/counter
+	ldi r16,AUDIO_BUFFER_SIZE
+	ldi XL,lo8(audio_buffer)
+	ldi XH,hi8(audio_buffer)
+
+1:
+	; Store pointer/counter
+	sts abc,r16
+	sts abp,XL
+	sts abp+1,XH
+
+	pop XH
+	pop XL
+	pop r17
+	pop r16
+	out _SFR_IO_ADDR(SREG),r16
+	pop r16
+	reti
+.endfunc
 
 ; TIMER1_OVF_vect
 .global __vector_13
@@ -219,6 +219,10 @@ __vector_13: ; 76-87 clks
 	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
 	SHIFT_REGISTER_SHIFT
 	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
+
+	; Sync array pointer
+	ldi XL,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*(NUM_ROWS-1)))
+	ldi XH,hi8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*(NUM_ROWS-1)))
 
 	rjmp 3f 
 

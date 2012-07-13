@@ -37,7 +37,7 @@ void fader_task2(void)
 volatile unsigned long loopcount = 0;
 int main(void)
 {
-	//audio_init();
+	audio_init();
 
 	eeprom_srand();
 
@@ -45,7 +45,6 @@ int main(void)
 	tlc_gs_data_latch();
 	
 	led_driver_init();
-//	sei();
 
 	//cubes_init();
 	snake_init();
@@ -57,9 +56,8 @@ int main(void)
 	{
 		loopcount++;
 
-		snake_task();
-		continue;
-		//audio_task();
+		//led_test4();
+		audio_task();
 		//fader_task2();
 		//fader_task();
 		//snake_task();
