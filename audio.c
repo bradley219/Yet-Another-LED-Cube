@@ -23,16 +23,12 @@ volatile uint8_t abc = AUDIO_BUFFER_SIZE;
 // 4099390717
 void audio_init(void)
 {
+	// Setup low-pass filter
 	DDRD |= _BV(PORTD5);
 	OCR0A = 20;
 	OCR0B = OCR0A / 2;
 	TCCR0A = _BV(COM0B1) | _BV(WGM01) | _BV(WGM00);
 	TCCR0B = _BV(WGM02) | TIMER0_PS_BITS;
-
-	// digital input disable
-	//DIDR0 = _BV(ADC5D) | _BV(ADC4D) | _BV(ADC3D) | _BV(ADC2D) | _BV(ADC1D);
-
-	//DDRC &= ~_BV(PORTC0);
 
 	ADMUX = _BV(REFS0);
 	ADCSRA = _BV(ADEN) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0) | _BV(ADATE);
@@ -123,25 +119,61 @@ void audio_task(void)
 		sum += *spec++;
 	}
 
+	if( sum < 50 )
+		sum = 0;
+
 	static hsb_t color = { .s = 1.0, .h = 0.3 };
 	rgb_t rgb;
 
 #define ENVELOPE_MAX ((double)(ENVELOPE * 128))
-#define ENVELOPE_THRESHOLD (ENVELOPE_MAX/10.0)
+#define ENVELOPE_THRESHOLD 0.10
 #define SUM_EXPONENT 6
 	sum = sum * (1.0/(double)SUM_EXPONENT) + last_sum * (double)(SUM_EXPONENT-1)/(double)SUM_EXPONENT;
 
-	static uint8_t last_tshld = 0;
-	uint8_t tshld = 0;
+	static long high_count = 0;
+	static long low_count = 0;
+	long last_low_count = -1,last_high_count = -1;
 
-	if( sum > ENVELOPE_THRESHOLD ) {
-		tshld = 1;
+	uint8_t beat = 0;
+
+	double relative_level = sum / ENVELOPE_MAX;
+	if( relative_level > ENVELOPE_THRESHOLD )
+	{
+		if( high_count == 0 )
+		{
+			last_low_count = low_count;
+			low_count = 0;
+		}
+		high_count++;
 	}
-	else {
-		tshld = 0;
+	else
+	{
+		if( low_count == 0 )
+		{
+			last_high_count = high_count;
+
+			if( last_high_count > (0.5 * (double)last_low_count) )
+			{
+				beat = 1;
+			}
+
+			high_count = 0;
+		}
+		low_count++;
 	}
 
-	if( tshld && !last_tshld )
+//	static uint8_t last_tshld = 0;
+//	uint8_t tshld = 0;
+//
+//	if( sum > ENVELOPE_THRESHOLD ) {
+//		tshld = 1;
+//	}
+//	else {
+//		tshld = 0;
+//	}
+
+	if( beat )
+	//if( tshld && !last_tshld )
 	{
 		color.h += 0.3;
 		color.h += (double)rand() / (double)RAND_MAX * 0.5;
@@ -149,7 +181,7 @@ void audio_task(void)
 			color.h -= 1;
 	}
 
-	last_tshld = tshld;
+//	last_tshld = tshld;
 
 	color.b = ((double)sum / ENVELOPE_MAX) * 0.5;
 	if( color.b > 0.5 )
