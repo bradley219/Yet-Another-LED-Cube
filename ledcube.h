@@ -17,6 +17,7 @@
 #include "snake.h"
 //#include "audio.h"
 
+extern hsb_t main_color;
 void eeprom_srand(void);
 
 #endif // ifndef _SHARK_H_

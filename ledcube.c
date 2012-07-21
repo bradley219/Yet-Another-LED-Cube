@@ -5,34 +5,36 @@
 #include <avr/eeprom.h>
 #include <util/delay.h>
 
-void fader_task2(void)
-{
-	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
-	rgb_t rgb;
+hsb_t main_color = { .h = 0, .s = 1, .b = 0.5 };
 
-	long delay = 10;
-
-	hsb_to_rgb( &color, &rgb );
-	for( uint8_t x = 0; x < LED_WIDTH; x++ )
-	{
-		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
-		{
-			for( uint8_t z = 0; z < LED_DEPTH; z++ )
-			{
-				set_led( x, y, z, &rgb );
-			}
-		}
-	}
-	tlc_gs_data_latch();
-
-	_delay_ms(delay);
-
-	color.h += 0.0002;
-	if( color.h >= 1 )
-		color.h -= 1;
-
-	return;
-}
+//void fader_task2(void)
+//{
+//	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
+//	rgb_t rgb;
+//
+//	long delay = 10;
+//
+//	hsb_to_rgb( &color, &rgb );
+//	for( uint8_t x = 0; x < LED_WIDTH; x++ )
+//	{
+//		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
+//		{
+//			for( uint8_t z = 0; z < LED_DEPTH; z++ )
+//			{
+//				set_led( x, y, z, &rgb );
+//			}
+//		}
+//	}
+//	tlc_gs_data_latch();
+//
+//	_delay_ms(delay);
+//
+//	color.h += 0.0002;
+//	if( color.h >= 1 )
+//		color.h -= 1;
+//
+//	return;
+//}
 
 volatile unsigned long loopcount = 0;
 int main(void)
@@ -56,11 +58,8 @@ int main(void)
 	{
 		loopcount++;
 
-		//led_test4();
 		audio_task();
-		//fader_task2();
-		//fader_task();
-		//snake_task();
+		snake_task();
 	}
 	return 0;
 }

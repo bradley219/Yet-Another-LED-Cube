@@ -15,6 +15,7 @@
 #include "audio.h"
 #include "asmdriver.h"
 #include "ffft.h"
+#include "ledcube.h"
 
 volatile int16_t audio_buffer[AUDIO_BUFFER_SIZE];
 volatile int16_t *abp = audio_buffer;
@@ -30,71 +31,16 @@ void audio_init(void)
 	TCCR0A = _BV(COM0B1) | _BV(WGM01) | _BV(WGM00);
 	TCCR0B = _BV(WGM02) | TIMER0_PS_BITS;
 
+	// Setup ADC capture
 	ADMUX = _BV(REFS0);
 	ADCSRA = _BV(ADEN) | _BV(ADIE) | _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0) | _BV(ADATE);
 	ADCSRB = 0;
 
+	// Start ADC capture
 	sei();
 	ADCSRA |= _BV(ADSC);
-
 	return;
 }
-//void audio_task2(void)
-//{
-//	static double last_sum = 0;
-//
-//	/* FFT buffer */
-//	static complex_t butterfly[FFT_N];
-//
-//	/* Spectrum output buffer */
-//	uint8_t spectrum[FFT_N/2];
-//
-//	fft_input( audio_buffer, butterfly );
-//	fft_execute( butterfly );
-//	fft_output( butterfly, spectrum );
-//
-//	uint8_t *spec = spectrum;
-//
-//	static uint16_t last_bars[16];
-//	
-//	hsb_t color = { .s = 1.0, .h = 0.3 };
-//	rgb_t rgb;
-//	for( uint8_t x = 0; x < LED_WIDTH; x++ )
-//	{
-//		for( uint8_t z = 0; z < LED_DEPTH; z++ )
-//		{
-//			unsigned long bar = *spec++;
-//			bar += *spec++;
-//
-//#define BAR_EXP 7
-//			bar = bar * 1.0/(double)BAR_EXP + last_bars[z*x] * (double)(BAR_EXP-1)/(double)BAR_EXP;
-//			last_bars[z*x] = bar;
-//
-//#define BAR_FACTOR 35
-//			for( uint8_t y = 0; y < LED_HEIGHT; y++ )
-//			{
-//				if( bar > BAR_FACTOR )
-//				{
-//					color.b = 0.5;
-//					bar -= BAR_FACTOR;
-//				}
-//				else
-//				{
-//					color.b = ((double)bar / (double)BAR_FACTOR) * 0.5;
-//					bar = 0;
-//				}
-//				//color.b = 0.5;
-//				hsb_to_rgb( &color, &rgb );
-//				if( z % 2 )
-//					set_led( x, (3-y), z, &rgb );
-//				else
-//					set_led( (3-x), (3-y), z, &rgb );
-//			}
-//		}
-//	}
-//	tlc_gs_data_latch();
-//	return;
-//}
 void audio_task(void)
 {
 	static double last_sum = 0;
@@ -122,7 +68,6 @@ void audio_task(void)
 	if( sum < 50 )
 		sum = 0;
 
-	static hsb_t color = { .s = 1.0, .h = 0.3 };
 	rgb_t rgb;
 
 #define ENVELOPE_MAX ((double)(ENVELOPE * 128))
@@ -162,49 +107,33 @@ void audio_task(void)
 		low_count++;
 	}
 
-//	static uint8_t last_tshld = 0;
-//	uint8_t tshld = 0;
-//
-//	if( sum > ENVELOPE_THRESHOLD ) {
-//		tshld = 1;
-//	}
-//	else {
-//		tshld = 0;
-//	}
-
 	if( beat )
-	//if( tshld && !last_tshld )
 	{
-		color.h += 0.3;
-		color.h += (double)rand() / (double)RAND_MAX * 0.5;
-		if( color.h >= 1 )
-			color.h -= 1;
+		main_color.h += 0.3;
+		main_color.h += (double)rand() / (double)RAND_MAX * 0.5;
+		if( main_color.h >= 1 )
+			main_color.h -= 1;
 	}
 
-//	last_tshld = tshld;
-
-	color.b = ((double)sum / ENVELOPE_MAX) * 0.5;
-	if( color.b > 0.5 )
-		color.b = 0.5;
+//	main_color.b = ((double)sum / ENVELOPE_MAX) * 0.5;
+//	if( main_color.b > 0.5 )
+//		main_color.b = 0.5;
 
 	last_sum = sum;
 
-//	if( color.b < 0.01 )
-//		color.b = 0;
-	
-	hsb_to_rgb( &color, &rgb );
-
-	for( uint8_t x = 0; x < LED_WIDTH; x++ )
-	{
-		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
-		{
-			for( uint8_t z = 0; z < LED_DEPTH; z++ )
-			{
-				set_led( x, y, z, &rgb );
-			}
-		}
-	}
-	tlc_gs_data_latch();
+//	hsb_to_rgb( &color, &rgb );
+//
+//	for( uint8_t x = 0; x < LED_WIDTH; x++ )
+//	{
+//		for( uint8_t y = 0; y < LED_HEIGHT; y++ )
+//		{
+//			for( uint8_t z = 0; z < LED_DEPTH; z++ )
+//			{
+//				set_led( x, y, z, &rgb );
+//			}
+//		}
+//	}
+//	tlc_gs_data_latch();
 	return;
 }
 

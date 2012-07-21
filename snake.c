@@ -8,13 +8,14 @@
 #include "driver.h"
 #include "snake.h"
 #include "audio.h"
+#include "ledcube.h"
 
 #define NUM_SNAKES 1
-#define SNAKE_LENGTH 100
-#define SNAKE_DELAY 1
+#define SNAKE_LENGTH 8
+#define SNAKE_DELAY 10
 #define SNAKE_COLOR_STEP 0.00001
 
-#define RAINBOW_SNAKE
+//#define RAINBOW_SNAKE
 
 typedef enum {
 	MOVE_UP = 1,
@@ -193,14 +194,42 @@ void snake_move( snake_t *snake )
 		}
 	}
 }
+
+uint8_t delay_time = 50;
 void render_snake(snake_t *snake)
 {
+    static uint16_t count_since_last_hue_change = 0;
+    static float last_hue = 0;
+
+    if( last_hue != main_color.h )
+    {
+        if( count_since_last_hue_change > 20 )
+            delay_time++;
+        else
+            delay_time--;
+
+        if( delay_time < 10 )
+            delay_time = 10;
+        else if( delay_time > 100 )
+            delay_time = 100;
+
+        last_hue = main_color.h;
+        count_since_last_hue_change = 0;
+    }
+    else
+    {
+        count_since_last_hue_change++;
+        if( count_since_last_hue_change > 0xfff0 )
+            count_since_last_hue_change = 0xfff0;
+    }
 
 	float bright_step = 0.50 / (double)snake->length;
 
-	snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
-	if( snake->color.h >= 1 )
-		snake->color.h = 0;
+    snake->color.h = main_color.h;
+
+	//snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
+	//if( snake->color.h >= 1 )
+	//	snake->color.h = 0;
 
 	rgb_t newrgb;
 
@@ -254,7 +283,8 @@ void snake_task(void)
 		sp++;
 	}
 	tlc_gs_data_latch();
-	_delay_ms(SNAKE_DELAY);
+	//_delay_ms(SNAKE_DELAY);
+	_delay_ms(delay_time);
 	return;
 }
 
