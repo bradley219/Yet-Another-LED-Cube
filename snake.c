@@ -10,12 +10,12 @@
 #include "audio.h"
 #include "ledcube.h"
 
-#define NUM_SNAKES 1
-#define SNAKE_LENGTH 8
-#define SNAKE_DELAY 10
+#define NUM_SNAKES 2
+#define SNAKE_LENGTH 12
+#define SNAKE_DELAY 18
 #define SNAKE_COLOR_STEP 0.00001
 
-//#define RAINBOW_SNAKE
+#define RAINBOW_SNAKE
 
 typedef enum {
 	MOVE_UP = 1,
@@ -195,37 +195,18 @@ void snake_move( snake_t *snake )
 	}
 }
 
-uint8_t delay_time = 50;
-void render_snake(snake_t *snake)
+void render_snake(snake_t *snake, uint8_t num )
 {
-    static uint16_t count_since_last_hue_change = 0;
-    static float last_hue = 0;
-
-    if( last_hue != main_color.h )
-    {
-        if( count_since_last_hue_change > 20 )
-            delay_time++;
-        else
-            delay_time--;
-
-        if( delay_time < 10 )
-            delay_time = 10;
-        else if( delay_time > 100 )
-            delay_time = 100;
-
-        last_hue = main_color.h;
-        count_since_last_hue_change = 0;
-    }
-    else
-    {
-        count_since_last_hue_change++;
-        if( count_since_last_hue_change > 0xfff0 )
-            count_since_last_hue_change = 0xfff0;
-    }
 
 	float bright_step = 0.50 / (double)snake->length;
 
     snake->color.h = main_color.h;
+    if( num % 2 )
+    {
+        snake->color.h += 0.5;
+        if( snake->color.h >= 1 )
+            snake->color.h -= 1.0;
+    }
 
 	//snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
 	//if( snake->color.h >= 1 )
@@ -239,7 +220,7 @@ void render_snake(snake_t *snake)
 
 	hsb_t color = snake->color;
 #ifdef RAINBOW_SNAKE
-	float hue_step = 1.0 / (double)snake->length;
+	float hue_step = 0.20 / (double)snake->length;
 #endif
 	for( uint8_t i = 0; i < snake->length; i++ ) 
 	{
@@ -273,18 +254,24 @@ void render_snake(snake_t *snake)
 
 void snake_task(void)
 {
+    static unsigned long timer = 0;
+    if( timer++ < SNAKE_DELAY )
+    {
+        return;
+    }
+    timer = 0;
 
 	snake_t *sp = snakes;
 	tlc_set_all_gs(0);
 	for( int i = 0; i < NUM_SNAKES; i++ )
 	{
 		snake_move(sp);
-		render_snake(sp);
+		render_snake(sp, i);
 		sp++;
 	}
 	tlc_gs_data_latch();
 	//_delay_ms(SNAKE_DELAY);
-	_delay_ms(delay_time);
+	//_delay_ms(delay_time);
 	return;
 }
 
