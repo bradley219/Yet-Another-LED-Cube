@@ -2,9 +2,8 @@ Yet-Another-LED-Cube
 ====================
 
 Sources
-=======
+-------
 
-ledcube.c
----------
+### ledcube.c
 Contains the main() routine.
 
