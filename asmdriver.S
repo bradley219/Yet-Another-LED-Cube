@@ -108,12 +108,6 @@
 	pop r22
 .endm
 
-;; ADC_vect
-;.global __vector_17
-;.func __vector_17
-;__vector_17:
-;.endfunc
-
 ; ADC_vect
 .global __vector_21
 .func __vector_21
@@ -166,6 +160,7 @@ __vector_21:
 	reti
 .endfunc
 
+;ISR( SPI_STC_vect, ISR_BLOCK )
 .global __vector_17
 .func __vector_17
 __vector_17:
