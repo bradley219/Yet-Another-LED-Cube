@@ -227,20 +227,6 @@ void tlc_set_all_dc_rgb( rgb_t *dc )
 	}
 }
 
-ISR( SPI_STC_vect, ISR_BLOCK )
-{
-	asm volatile( "wdr\n\t" );
-	if( spi_bytes_remaining-- )
-	{
-		SPDR = *--spi_gsd;
-	}
-	else 
-	{
-		// enable timer1 interrupt
-		//TIMSK1 |= _BV(TOIE1);
-	}
-	return;
-}
 
 void tlc_init(void)
 {

@@ -108,6 +108,20 @@ ISR( TIMER1_OVF_vect, ISR_BLOCK ) // fires when TLC cycle is done
 
 	return;
 }
+ISR( SPI_STC_vect, ISR_BLOCK )
+{
+	asm volatile( "wdr\n\t" );
+	if( spi_bytes_remaining-- )
+	{
+		SPDR = *--spi_gsd;
+	}
+	else 
+	{
+		// enable timer1 interrupt
+		//TIMSK1 |= _BV(TOIE1);
+	}
+	return;
+}
 
 void shift_register_shift(void)
 {

@@ -36,7 +36,7 @@ CONFIGFILE = config.h types.h
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 #OPT = 0
 #OPT = s
-OPT = 0
+OPT = 3
 
 
 # List C source files here. (C dependencies are automatically generated.)

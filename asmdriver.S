@@ -166,6 +166,44 @@ __vector_21:
 	reti
 .endfunc
 
+.global __vector_17
+.func __vector_17
+__vector_17:
+	wdr
+
+	push XL
+	in XL,_SFR_IO_ADDR(SREG)
+	push XL
+	push XH
+	push r16
+
+	lds r16,spi_bytes_remaining
+	cpi	r16,0
+	breq 1f
+
+	; if greater than zero
+	dec r16
+	sts spi_bytes_remaining,r16
+
+	lds XL,spi_gsd
+	lds XH,spi_gsd+1
+
+	ld r16,-X
+	out	_SFR_IO_ADDR(SPDR),r16
+
+	sts spi_gsd,XL
+	sts spi_gsd+1,XH
+
+1:
+	pop r16
+	pop XH
+	pop XL
+	out _SFR_IO_ADDR(SREG),XL
+	pop XL
+
+	reti
+.endfunc
+
 ; TIMER1_OVF_vect
 .global __vector_13
 .func __vector_13
