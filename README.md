@@ -7,17 +7,18 @@ Sources
 ### ledcube.c
 Contains the main() routine.
 
-### audio.c
-Routines for implementing audio processing.
-
-### color.c
-Functions for doing color-related tasks such as RGB/HSB conversion, and alpha compositing.
+### driver.c / asmdriver.S
+LED driver module.
 
 ### ffft.S
 Optimized fast forier transform subroutines.
 
-### driver.c / asmdriver.S
-LED driver module.
+### audio.c
+Routines for implementing audio processing using fft.
+
+### color.c
+Functions for doing color-related tasks such as RGB/HSB conversion, and alpha compositing.
+
 
 Animations
 ----------
