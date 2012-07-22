@@ -6,6 +6,7 @@
 #include <util/delay.h>
 
 hsb_t main_color = { .h = 0, .s = 1, .b = 0.5 };
+uint8_t is_beat = 0;
 
 //void fader_task2(void)
 //{
@@ -58,6 +59,7 @@ int main(void)
 	{
 		loopcount++;
 
+		//cubes_task();
 		audio_task();
 		snake_task();
 	}

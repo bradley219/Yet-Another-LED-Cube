@@ -12,8 +12,8 @@
 
 #define NUM_SNAKES 2
 #define SNAKE_LENGTH 12
-#define SNAKE_DELAY 18
-#define SNAKE_COLOR_STEP 0.00001
+#define SNAKE_DELAY 10
+#define SNAKE_COLOR_STEP 0.001
 
 #define RAINBOW_SNAKE
 
@@ -197,26 +197,28 @@ void snake_move( snake_t *snake )
 
 void render_snake(snake_t *snake, uint8_t num )
 {
-
 	float bright_step = 0.50 / (double)snake->length;
 
-    snake->color.h = main_color.h;
-    if( num % 2 )
-    {
-        snake->color.h += 0.5;
-        if( snake->color.h >= 1 )
-            snake->color.h -= 1.0;
-    }
-
-	//snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
-	//if( snake->color.h >= 1 )
-	//	snake->color.h = 0;
+	snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
+	if( snake->color.h >= 1 )
+		snake->color.h = 0;
 
 	rgb_t newrgb;
 
 	coord_t *pos = snake->coords + snake->length - 1;
 
-	snake->color.b = 0;
+    static uint8_t is_beat_count = 3;
+    if( is_beat )
+    {
+	    snake->color.b = 0.5;
+        if( --is_beat_count == 0 )
+        {
+            is_beat_count = 3;
+            is_beat = 0;
+        }
+    }
+    else
+	    snake->color.b = 0;
 
 	hsb_t color = snake->color;
 #ifdef RAINBOW_SNAKE
@@ -232,8 +234,10 @@ void render_snake(snake_t *snake, uint8_t num )
 			color.h -= 1.0;
 #endif
 
-		if( color.b > 0.5 || pos == snake->coords )
-			color.b = 0.5;
+        if( color.b > 1 )
+            color.b = 1;
+//		if( color.b > 0.5 || pos == snake->coords )
+//			color.b = 0.5;
 		hsb_to_rgb( &color, &newrgb );
 
 		rgb_t oldrgb;

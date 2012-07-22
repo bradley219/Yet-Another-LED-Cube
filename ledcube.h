@@ -17,6 +17,7 @@
 #include "snake.h"
 //#include "audio.h"
 
+extern uint8_t is_beat;
 extern hsb_t main_color;
 void eeprom_srand(void);
 

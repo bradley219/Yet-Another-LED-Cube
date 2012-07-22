@@ -109,6 +109,7 @@ void audio_task(void)
 
 	if( beat )
 	{
+		is_beat = 1;
 		main_color.h += 0.3;
 		main_color.h += (double)rand() / (double)RAND_MAX * 0.5;
 		if( main_color.h >= 1 )
