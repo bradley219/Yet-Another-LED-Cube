@@ -123,12 +123,45 @@ void led_test4(void)
 					}
 					set_led( x, y, z, &rgb );
 					tlc_gs_data_latch();
-					_delay_ms(300);
+					_delay_ms(100);
 					rgb.r = rgb.g = rgb.b = 0;
 					set_led( x, y, z, &rgb );
 				}
 			}
 		}
+	}
+	return;
+}
+void led_test5(void)
+{
+	for( uint8_t c = 0; c < 3; c++ )
+	{
+		rgb_t rgb = { .r = 0, .g = 0, .b = 0 };
+		for( uint8_t x = 0; x < LED_WIDTH; x++ )
+		{
+			for( uint8_t y = 0; y < LED_HEIGHT; y++ )
+			{
+				for( uint8_t z = 0; z < LED_DEPTH; z++ )
+				{
+					switch(c)
+					{
+						case 0:
+							rgb.r = 1;
+							break;
+						case 1:
+							rgb.g = 1;
+							break;
+						case 2:
+							rgb.b = 1;
+							break;
+					}
+					set_led( x, y, z, &rgb );
+				}
+			}
+		}
+		tlc_gs_data_latch();
+		_delay_ms(1500);
+		rgb.r = rgb.g = rgb.b = 0;
 	}
 	return;
 }

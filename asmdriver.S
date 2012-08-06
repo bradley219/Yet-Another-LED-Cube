@@ -249,9 +249,9 @@ __vector_13: ; 76-87 clks
 	brne 2f 
 
 1: ; if( current_row == 0 ) 
-	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
-	SHIFT_REGISTER_SHIFT
 	cbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
+	SHIFT_REGISTER_SHIFT
+	sbi _SFR_IO_ADDR(SHIFT_REG_SIN_PORT),SHIFT_REG_SIN 
 
 	; Sync array pointer
 	ldi XL,lo8(tlc_gs_live_data + (TLC_GS_ROW_BYTES*(NUM_ROWS-1)))
