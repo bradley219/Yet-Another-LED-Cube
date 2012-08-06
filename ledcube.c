@@ -59,10 +59,10 @@ int main(void)
 	{
 		loopcount++;
 
-		led_test5();
+		//led_test5();
 		//cubes_task();
-		//audio_task();
-		//snake_task();
+		audio_task();
+		snake_task();
 	}
 	return 0;
 }

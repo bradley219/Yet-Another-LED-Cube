@@ -123,7 +123,7 @@ void led_test4(void)
 					}
 					set_led( x, y, z, &rgb );
 					tlc_gs_data_latch();
-					_delay_ms(100);
+					_delay_ms(1000);
 					rgb.r = rgb.g = rgb.b = 0;
 					set_led( x, y, z, &rgb );
 				}
