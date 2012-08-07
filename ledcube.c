@@ -59,6 +59,9 @@ int main(void)
 	{
 		loopcount++;
 
+		//rando();
+		//solid_fader_task();
+		//fader_task();
 		//led_test5();
 		//cubes_task();
 		audio_task();

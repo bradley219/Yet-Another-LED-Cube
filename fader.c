@@ -17,13 +17,83 @@ void fader_init(void)
 	return;
 }
 
+void rando(void)
+{
+	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
+    rgb_t rgb;
+
+    int delay = 100;
+    uint8_t x = 0;
+    for( x = 0; x < LED_HEIGHT; x++ )
+    {
+        for( uint8_t y = 0; y < LED_WIDTH; y++ )
+        {
+            for( uint8_t z = 0; z < LED_DEPTH; z++ )
+            {
+                color.h = (double)rand() / (double)RAND_MAX;
+                color.b = ((double)rand() / (double)RAND_MAX) * 0.5;
+                color.s = ((double)rand() / (double)RAND_MAX) * 0.25 + 1.0 - 0.25;
+                hsb_to_rgb( &color, &rgb );
+                set_led( x, y, z, &rgb );
+            }
+        }
+    }
+    tlc_gs_data_latch();
+    _delay_ms(delay);
+		
+    return;
+}
+
+void solid_fader_task(void)
+{
+	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
+    rgb_t rgb;
+
+    color.h += 1.0/500.0;
+    if( color.h >=1 )
+        color.h -= 1.0;
+	hsb_to_rgb( &color, &rgb );
+
+    int delay = 50;
+    uint8_t x = 0;
+    for( x = 0; x < LED_HEIGHT; x++ )
+    {
+        for( uint8_t y = 0; y < LED_WIDTH; y++ )
+        {
+            for( uint8_t z = 0; z < LED_DEPTH; z++ )
+            {
+                set_led( x, y, z, &rgb );
+            }
+        }
+        tlc_gs_data_latch();
+	    tlc_set_all_gs(0);
+        _delay_ms(delay);
+    }
+    x--;
+    while( x-- - 1 )
+    {
+        for( uint8_t y = 0; y < LED_WIDTH; y++ )
+        {
+            for( uint8_t z = 0; z < LED_DEPTH; z++ )
+            {
+                set_led( x, y, z, &rgb );
+            }
+        }
+        tlc_gs_data_latch();
+	    tlc_set_all_gs(0);
+        _delay_ms(delay);
+    }
+		
+    return;
+}
+
 void fader_task(void)
 {
 	static hsb_t color = { .h = 0.0 , .s = 1, .b = 0.5 };
 	rgb_t rgb;
 
 	long delay = rand() * 25L / RAND_MAX + 20;
-	delay = 100;
+	delay = 1500;
 
 	float max_bright = 0.5;
 	float min_bright = 0;
@@ -33,9 +103,9 @@ void fader_task(void)
 	float bright_step = (max_bright-min_bright) / (float)num_steps_requested;
 	uint8_t num_steps = num_steps_requested * 2 - 1;
 
-//	color.h += 1.0 / 50.0;
+	color.h += 1.0 / 50.0;
 //	color.h += 1.0 / 3.0;
-	color.h += (double)rand() / (double)RAND_MAX * (1.0/3.0);
+	//color.h += (double)rand() / (double)RAND_MAX * (1.0/3.0);
 	if( color.h >= 1 )
 		color.h -= 1;
 

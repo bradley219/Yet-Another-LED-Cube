@@ -72,7 +72,7 @@ void audio_task(void)
 
 #define ENVELOPE_MAX ((double)(ENVELOPE * 128))
 #define ENVELOPE_THRESHOLD 0.10
-#define SUM_EXPONENT 6
+#define SUM_EXPONENT 7
 	sum = sum * (1.0/(double)SUM_EXPONENT) + last_sum * (double)(SUM_EXPONENT-1)/(double)SUM_EXPONENT;
 
 	static long high_count = 0;

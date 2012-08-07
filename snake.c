@@ -10,12 +10,14 @@
 #include "audio.h"
 #include "ledcube.h"
 
-#define NUM_SNAKES 2
-#define SNAKE_LENGTH 27
-#define SNAKE_DELAY 1
+#define NUM_SNAKES 1
+#define SNAKE_LENGTH 21
+#define SNAKE_DELAY 18
 #define SNAKE_COLOR_STEP 0.001
 
 #define RAINBOW_SNAKE
+
+//#define MORE_STRAIGHT_PROBABILITY
 
 typedef enum {
 	MOVE_UP = 1,
@@ -35,11 +37,10 @@ typedef struct {
 
 static snake_t snakes[NUM_SNAKES];
 
-
 void snake_init(void)
 {
 	snake_t *sp = snakes;
-	float hue = 0;//(double)rand() / (double)RAND_MAX;
+	float hue = (double)rand() / (double)RAND_MAX;
 	float hue_step = 1.0 / (double)NUM_SNAKES;
 	for( int i = 0; i < NUM_SNAKES; i++ )
 	{
@@ -100,72 +101,84 @@ void snake_move( snake_t *snake )
 			if( snake->last_move != MOVE_LEFT ) {
 				pmc++;
 				*pmp++ = MOVE_RIGHT;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_RIGHT ) {
 					pmc++;
 					*pmp++ = MOVE_RIGHT;
 					pmc++;
 					*pmp++ = MOVE_RIGHT;
 				}
+#endif
 			}
 		}
 		if( head->x < (LED_WIDTH-1) ) {
 			if( snake->last_move != MOVE_RIGHT ) {
 				pmc++;
 				*pmp++ = MOVE_LEFT;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_LEFT ) {
 					pmc++;
 					*pmp++ = MOVE_LEFT;
 					pmc++;
 					*pmp++ = MOVE_LEFT;
 				}
+#endif
 			}
 		}
 		if( head->y > 0 ) {
 			if( snake->last_move != MOVE_UP ) {
 				pmc++;
 				*pmp++ = MOVE_DOWN;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_DOWN ) {
 					pmc++;
 					*pmp++ = MOVE_DOWN;
 					pmc++;
 					*pmp++ = MOVE_DOWN;
 				}
+#endif
 			}
 		}
 		if( head->y < (LED_HEIGHT-1) ) {
 			if( snake->last_move != MOVE_DOWN ) {
 				pmc++;
 				*pmp++ = MOVE_UP;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_UP ) {
 					pmc++;
 					*pmp++ = MOVE_UP;
 					pmc++;
 					*pmp++ = MOVE_UP;
 				}
+#endif
 			}
 		}
 		if( head->z > 0 ) {
 			if( snake->last_move != MOVE_BACKWARD ) {
 				pmc++;
 				*pmp++ = MOVE_FORWARD;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_FORWARD ) {
 					pmc++;
 					*pmp++ = MOVE_FORWARD;
 					pmc++;
 					*pmp++ = MOVE_FORWARD;
 				}
+#endif
 			}
 		}
 		if( head->z < (LED_DEPTH-1) ) {
 			if( snake->last_move != MOVE_FORWARD ) {
 				pmc++;
 				*pmp++ = MOVE_BACKWARD;
+#ifdef MORE_STRAIGHT_PROBABILITY
 				if( snake->last_move == MOVE_BACKWARD ) {
 					pmc++;
 					*pmp++ = MOVE_BACKWARD;
 					pmc++;
 					*pmp++ = MOVE_BACKWARD;
 				}
+#endif
 			}
 		}
 
@@ -199,6 +212,10 @@ void render_snake(snake_t *snake, uint8_t num )
 {
 	float bright_step = 0.50 / (double)snake->length;
 
+//    snake->color.h = main_color.h;
+//    main_color.h += SNAKE_COLOR_STEP;
+//    if( main_color.h >= 1 )
+//        main_color.h -= 1.0;
 	snake->color.h += SNAKE_COLOR_STEP;// + (double)rand() / (double)RAND_MAX * ((double)SNAKE_COLOR_STEP/4.0);
 	if( snake->color.h >= 1 )
 		snake->color.h = 0;
@@ -211,7 +228,7 @@ void render_snake(snake_t *snake, uint8_t num )
 	snake->color.b = 0.0;
 	hsb_t color = snake->color;
 #ifdef RAINBOW_SNAKE
-	float hue_step = 0.10 / (double)snake->length;
+	float hue_step = 0.20 / (double)snake->length;
 #endif
 	for( uint8_t i = 0; i < snake->length; i++ ) 
 	{
@@ -248,14 +265,27 @@ void render_snake(snake_t *snake, uint8_t num )
 	}
 }
 
+static float snake_delay = 50;
+static const float snake_delay_exp = 7;
 
 void snake_task(void)
 {
     static unsigned long timer = 0;
-    if( timer++ < SNAKE_DELAY )
+    
+    float inc = ((double)rand() / (double)RAND_MAX - 0.5) * 5;
+    snake_delay = snake_delay * (snake_delay_exp-1.0) / snake_delay_exp + (inc+snake_delay) / snake_delay_exp;
+
+    if( snake_delay < 2 )
+        snake_delay = 2;
+    else if( snake_delay > 15 )
+        snake_delay = 15;
+   
+    if( timer++ < snake_delay )
     {
         return;
     }
+
+
     timer = 0;
 	tlc_set_all_gs(0);
 
@@ -278,8 +308,6 @@ void snake_task(void)
 		sp++;
 	}
 	tlc_gs_data_latch();
-	//_delay_ms(SNAKE_DELAY);
-	//_delay_ms(delay_time);
 	return;
 }
 
