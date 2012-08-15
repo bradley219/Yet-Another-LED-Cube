@@ -268,18 +268,9 @@ void tlc_init(void)
 /**
  * Shift register 
  */
-void shift_register_blank(void)
-{
-	SHIFT_REG_MR_PORT &= ~_BV(SHIFT_REG_MR);
-}
-void shift_register_unblank(void)
-{
-	SHIFT_REG_MR_PORT |= _BV(SHIFT_REG_MR);
-}
 void shift_register_init(void) 
 {
 	SHIFT_REG_CP_DDR  |= _BV(SHIFT_REG_CP);
-	SHIFT_REG_MR_DDR  |= _BV(SHIFT_REG_MR);
 	SHIFT_REG_SIN_DDR |= _BV(SHIFT_REG_SIN);
 
 	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
@@ -291,8 +282,6 @@ void tlc_shift8( uint8_t byte )
 	while( !(SPSR & _BV(SPIF)) );
 	return;
 }
-	shift_register_blank();
-	shift_register_unblank();
 	return;
 }
 

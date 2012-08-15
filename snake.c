@@ -11,9 +11,11 @@
 #include "ledcube.h"
 
 #define NUM_SNAKES 1
-#define SNAKE_LENGTH 21
-#define SNAKE_DELAY 18
+#define SNAKE_LENGTH 28
 #define SNAKE_COLOR_STEP 0.001
+
+#define SNAKE_MIN_DELAY 1
+#define SNAKE_MAX_DELAY 15
 
 #define RAINBOW_SNAKE
 
@@ -265,7 +267,7 @@ void render_snake(snake_t *snake, uint8_t num )
 	}
 }
 
-static float snake_delay = 50;
+static float snake_delay = (SNAKE_MIN_DELAY + SNAKE_MAX_DELAY) / 2;
 static const float snake_delay_exp = 7;
 
 void snake_task(void)
@@ -275,10 +277,10 @@ void snake_task(void)
     float inc = ((double)rand() / (double)RAND_MAX - 0.5) * 5;
     snake_delay = snake_delay * (snake_delay_exp-1.0) / snake_delay_exp + (inc+snake_delay) / snake_delay_exp;
 
-    if( snake_delay < 2 )
-        snake_delay = 2;
-    else if( snake_delay > 15 )
-        snake_delay = 15;
+    if( snake_delay < SNAKE_MIN_DELAY )
+        snake_delay = SNAKE_MIN_DELAY;
+    else if( snake_delay > SNAKE_MAX_DELAY )
+        snake_delay = SNAKE_MAX_DELAY;
    
     if( timer++ < snake_delay )
     {
@@ -289,16 +291,6 @@ void snake_task(void)
     timer = 0;
 	tlc_set_all_gs(0);
 
-//    static uint8_t is_beat_count = 1;
-//    if( is_beat )
-//    {
-//        tlc_set_all_gs(4095/1);
-//        if( --is_beat_count == 0 )
-//        {
-//            is_beat_count = 1;
-//            is_beat = 0;
-//        }
-//    }
 
 	snake_t *sp = snakes;
 	for( int i = 0; i < NUM_SNAKES; i++ )
