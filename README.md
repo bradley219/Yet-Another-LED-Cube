@@ -14,10 +14,13 @@ Schematic available in PDF and Eagle formats in the \`schematic' directory
 
 Hardware
 --------
+
+### Drive Theory and Timing
+![](https://raw.github.com/bradley219/Yet-Another-LED-Cube/master/misc/led-page-unit.png)
+
 ### LED Matrix Topography
 ### High-Side Switching
 ### Low-Side Switching/Current Sink
-### Drive Theory and Timing
 
 Software
 --------
