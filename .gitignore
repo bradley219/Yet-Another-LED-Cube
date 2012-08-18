@@ -18,3 +18,5 @@
 
 # Vim temporary files
 .*.swp
+
+aubio
