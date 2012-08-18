@@ -98,7 +98,7 @@ void bugs_task(void)
 		set_led_coord( &bugs[i].pos, &bugs[i].color );
 	}
 	tlc_gs_data_latch();
-	_delay_ms(100);
+	_delay_ms(50);
 	return;
 }
 #endif

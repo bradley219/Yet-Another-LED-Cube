@@ -11,7 +11,7 @@
 #include "ledcube.h"
 
 #define NUM_SNAKES 2
-#define SNAKE_LENGTH 35
+#define SNAKE_LENGTH 25
 #define SNAKE_COLOR_STEP 0.001
 
 #define SNAKE_MIN_DELAY 5

@@ -16,7 +16,7 @@
 #define CUBE_SWAP_DELAY_MS 200
 
 // Random bugs
-#define NUM_BUGS 10
+#define NUM_BUGS 20
 
 /**
  * TLC

@@ -7,6 +7,7 @@ An attempt to reinvent..the cube?
 
 Sorry, this file hasn't had much effort put into it yet :/
 
+
 Hardware
 --------
 ### LED Matrix Topography
@@ -21,4 +22,3 @@ Software
 ### Driver Interface
 ### Color Calculations
 ### Animations
-
