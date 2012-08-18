@@ -1,30 +1,24 @@
 Yet-Another-LED-Cube
 ====================
 
-Sources
--------
+About
+-----
+An attempt to reinvent..the cube? 
 
-### ledcube.c
-Contains the main() routine.
+Sorry, this file hasn't had much effort put into it yet :/
 
-### driver.c / asmdriver.S
-LED driver module.
+Hardware
+--------
+### LED Matrix Topography
+### High-Side Switching
+### Low-Side Switching/Current Sink
+### Drive Theory and Timing
 
-### ffft.S
-Optimized fast forier transform subroutines.
+Software
+--------
 
-### audio.c
-Routines for implementing audio processing using fft.
+### Driver
+### Driver Interface
+### Color Calculations
+### Animations
 
-### color.c
-Functions for doing color-related tasks such as RGB/HSB conversion, and alpha compositing.
-
-
-Animations
-----------
-
-### fader.c
-### cubes.c
-### snake.c
-### ledtests.c
-### random_bugs.c
