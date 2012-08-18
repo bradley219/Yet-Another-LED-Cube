@@ -11,7 +11,7 @@
 #include "ledcube.h"
 
 #define NUM_SNAKES 2
-#define SNAKE_LENGTH 28
+#define SNAKE_LENGTH 35
 #define SNAKE_COLOR_STEP 0.001
 
 #define SNAKE_MIN_DELAY 5
@@ -212,7 +212,7 @@ void snake_move( snake_t *snake )
 
 void render_snake(snake_t *snake, uint8_t num )
 {
-	float bright_step = 0.20 / (double)snake->length;
+	float bright_step = 0.40 / (double)snake->length;
 
 //    snake->color.h = main_color.h;
 //    main_color.h += SNAKE_COLOR_STEP;
