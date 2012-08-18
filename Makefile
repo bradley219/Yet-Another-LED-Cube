@@ -41,8 +41,20 @@ OPT = 3
 
 # List C source files here. (C dependencies are automatically generated.)
 
+ANIMATION_DIR = animation
+DRIVER_DIR = driver
+UTIL_DIR = util
 SRC = \
-	  $(TARGET).c driver.c color.c random_bugs.c cubes.c tests.c fader.c snake.c audio.c panels.c
+	  $(TARGET).c \
+	  $(DRIVER_DIR)/driver.c \
+	  $(DRIVER_DIR)/audio.c \
+	  $(UTIL_DIR)/color.c \
+	  $(ANIMATION_DIR)/random_bugs.c \
+	  $(ANIMATION_DIR)/cubes.c \
+	  $(ANIMATION_DIR)/tests.c \
+	  $(ANIMATION_DIR)/fader.c \
+	  $(ANIMATION_DIR)/snake.c \
+	  $(ANIMATION_DIR)/panels.c
 
 
 
@@ -55,12 +67,12 @@ CXXSRC =
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = asmdriver.S ffft.S
+ASRC = $(DRIVER_DIR)/asmdriver.S $(UTIL_DIR)/ffft.S
 
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
-EXTRAINCDIRS = 
+EXTRAINCDIRS = $(ANIMATION_DIR) $(DRIVER_DIR) $(UTIL_DIR)
 
 
 # Optional compiler flags.
@@ -200,7 +212,7 @@ MSG_COMPILING = Compiling:
 MSG_ASSEMBLING = Assembling:
 MSG_CLEANING = Cleaning project:
 
-INCLUDE = -I. $(EXTRAINCDIRS)
+INCLUDE = -I. 
 
 # Define all object files.
 OBJ = $(SRC:%.c=%.o) $(ASRC:%.S=%.o) $(CXXSRC:%.cpp=%.o)
