@@ -276,12 +276,6 @@ void shift_register_init(void)
 	SHIFT_REG_CP_PORT &= ~_BV(SHIFT_REG_CP);
 	SHIFT_REG_SIN_PORT &= ~_BV(SHIFT_REG_SIN);
 
-void tlc_shift8( uint8_t byte )
-{
-	SPDR = byte;
-	while( !(SPSR & _BV(SPIF)) );
-	return;
-}
 	return;
 }
 
