@@ -7,6 +7,7 @@ An attempt to reinvent..the cube?
 
 Sorry, this file hasn't had much effort put into it yet :/
 
+![](https://raw.github.com/bradley219/Yet-Another-LED-Cube/master/misc/IMG604.jpg)
 
 Hardware
 --------
