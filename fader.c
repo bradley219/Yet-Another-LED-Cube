@@ -93,7 +93,6 @@ void fader_task(void)
 	rgb_t rgb;
 
 	long delay = rand() * 25L / RAND_MAX + 20;
-	delay = 1500;
 
 	float max_bright = 0.5;
 	float min_bright = 0;

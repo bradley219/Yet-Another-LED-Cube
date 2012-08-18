@@ -10,14 +10,14 @@
 #include "audio.h"
 #include "ledcube.h"
 
-#define NUM_SNAKES 1
+#define NUM_SNAKES 2
 #define SNAKE_LENGTH 28
 #define SNAKE_COLOR_STEP 0.001
 
-#define SNAKE_MIN_DELAY 1
-#define SNAKE_MAX_DELAY 15
+#define SNAKE_MIN_DELAY 5
+#define SNAKE_MAX_DELAY 12
 
-#define RAINBOW_SNAKE
+//#define RAINBOW_SNAKE
 
 //#define MORE_STRAIGHT_PROBABILITY
 
@@ -212,7 +212,7 @@ void snake_move( snake_t *snake )
 
 void render_snake(snake_t *snake, uint8_t num )
 {
-	float bright_step = 0.50 / (double)snake->length;
+	float bright_step = 0.20 / (double)snake->length;
 
 //    snake->color.h = main_color.h;
 //    main_color.h += SNAKE_COLOR_STEP;
@@ -225,7 +225,6 @@ void render_snake(snake_t *snake, uint8_t num )
 	rgb_t newrgb;
 
 	coord_t *pos = snake->coords + snake->length - 1;
-
 
 	snake->color.b = 0.0;
 	hsb_t color = snake->color;

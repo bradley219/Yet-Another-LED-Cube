@@ -13,6 +13,7 @@
 #include "color.h"
 #include "random_bugs.h"
 #include "cubes.h"
+#include "panels.h"
 #include "fader.h"
 #include "snake.h"
 //#include "audio.h"

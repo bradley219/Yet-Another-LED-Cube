@@ -36,7 +36,7 @@
 
 #define DOT_CORRECTION_BLUE  63
 #define DOT_CORRECTION_GREEN 63
-#define DOT_CORRECTION_RED 	 63
+#define DOT_CORRECTION_RED 	 48
 
 #define LED_SIZE 4
 #define LED_WIDTH LED_SIZE
@@ -88,7 +88,7 @@
 #define TLC_GSCLK_PORT_LETTER D
 #define TLC_GSCLK_PORT_NUMBER 3
 
-#define TLC_XERR_PORT_LETTER B
+#define TLC_XERR_PORT_LETTER B // FIXME: PORTB4 should be connected to TLC's SOUT; XERR is a flag signal
 #define TLC_XERR_PORT_NUMBER 4
 
 #define SHIFT_REG_CP_PORT_LETTER D
