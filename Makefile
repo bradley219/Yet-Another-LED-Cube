@@ -49,6 +49,7 @@ SRC = \
 	  $(DRIVER_DIR)/driver.c \
 	  $(DRIVER_DIR)/audio.c \
 	  $(UTIL_DIR)/color.c \
+	  $(UTIL_DIR)/line.c \
 	  $(ANIMATION_DIR)/random_bugs.c \
 	  $(ANIMATION_DIR)/cubes.c \
 	  $(ANIMATION_DIR)/tests.c \

@@ -9,6 +9,7 @@
 #include "panels.h"
 #include "audio.h"
 #include "ledcube.h"
+#include "line.h"
 
 
 void panels_init(void)
@@ -20,7 +21,7 @@ void panels_init(void)
 
 static hsb_t color = { .h = 0.0, .s = 1.0, .b = 0.5 };
 static rgb_t rgb;
-void panels_task(void)
+void panels_task2(void)
 {
     uint16_t delayms = 50;
     hsb_to_rgb( &color, &rgb );
@@ -144,6 +145,49 @@ void panels_task(void)
     _delay_ms(delayms);
 
 	return;
+}
+
+void panels_task(void)
+{
+    rgb_t rgb;
+    hsb_to_rgb( &color, &rgb );
+    line_t line;
+
+    coord_t start = { .x = 0, .y = 0, .z = 0 };
+    coord_t end = start;
+
+    tlc_set_all_gs(0);
+
+   
+    end.x = 3;
+    end.y = 3;
+    make_line( &start, &end, &line );
+    render_line( &line, &rgb );
+    tlc_gs_data_latch();
+    _delay_ms(1000);
+   
+    start = end;
+    end.z = 3;
+    end.y = 0;
+    make_line( &start, &end, &line );
+    render_line( &line, &rgb );
+    tlc_gs_data_latch();
+    _delay_ms(1000);
+
+    start = end;
+    end.z = 3;
+    end.y = 3;
+    end.x = 0;
+    make_line( &start, &end, &line );
+    render_line( &line, &rgb );
+    tlc_gs_data_latch();
+    _delay_ms(1000);
+
+    
+    tlc_gs_data_latch();
+    _delay_ms(200);
+	
+    return;
 }
 
 

@@ -15,4 +15,8 @@ typedef struct {
 	uint8_t y;
 	uint8_t z;
 } coord_t;
+typedef struct {
+    coord_t start;
+    coord_t end;
+} line_t;
 #endif

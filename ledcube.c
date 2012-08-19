@@ -20,12 +20,13 @@ int main(void)
 	
 	led_driver_init();
 
+
 	//cubes_init();
 	//fader_init();
 	
 	uint16_t g = 0;//PWM_MAX_VAL * 7 / 8;
 	char inc = 1;
-	snake_init();
+	//snake_init();
 	while(1) 
 	{
 		//rando();
@@ -34,7 +35,8 @@ int main(void)
 		//led_test5();
 		//cubes_task();
 		//audio_task();
-		snake_task();
+		//snake_task();
+		panels_task();
 	}
 	panels_init();
 	while(1) 

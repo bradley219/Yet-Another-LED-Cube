@@ -212,9 +212,7 @@ void tlc_set_all_gs( uint16_t gs )
 }
 void tlc_gs_data_latch(void)
 {
-	//cli();
 	memcpy( tlc_gs_live_data, tlc_gs_data, sizeof(tlc_gs_data) );
-	//sei();
 	return;
 }
 void tlc_set_all_dc_rgb( rgb_t *dc )
