@@ -8,10 +8,9 @@
 hsb_t main_color = { .h = 0, .s = 1, .b = 0.5 };
 uint8_t is_beat = 0;
 
-
 int main(void)
 {
-	audio_init();
+	//audio_init();
 
 	eeprom_srand();
 
@@ -19,7 +18,6 @@ int main(void)
 	tlc_gs_data_latch();
 	
 	led_driver_init();
-
 
 	//cubes_init();
 	//fader_init();
@@ -36,11 +34,6 @@ int main(void)
 		//cubes_task();
 		//audio_task();
 		//snake_task();
-		panels_task();
-	}
-	panels_init();
-	while(1) 
-	{
 		panels_task();
 	}
 	return 0;

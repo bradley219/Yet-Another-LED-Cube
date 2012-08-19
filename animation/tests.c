@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "driver.h"
 
+/*
 void ledtest1(void)
 {
 	uint16_t d = 100;
@@ -165,4 +166,5 @@ void led_test5(void)
 	}
 	return;
 }
+*/
 #endif
