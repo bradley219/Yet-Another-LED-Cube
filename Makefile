@@ -54,8 +54,8 @@ SRC = \
 	  $(ANIMATION_DIR)/cubes.c \
 	  $(ANIMATION_DIR)/tests.c \
 	  $(ANIMATION_DIR)/fader.c \
-	  $(ANIMATION_DIR)/panels.c 
-	  #$(ANIMATION_DIR)/snake.c \
+	  $(ANIMATION_DIR)/panels.c  \
+	  $(ANIMATION_DIR)/snake.c 
 
 
 

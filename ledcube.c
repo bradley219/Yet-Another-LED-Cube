@@ -24,7 +24,12 @@ int main(void)
 	
 	uint16_t g = 0;//PWM_MAX_VAL * 7 / 8;
 	char inc = 1;
-	//snake_init();
+	snake_init();
+	//tlc_set_all_gs(4095);
+	//tlc_gs_data_latch();
+	//while(1) 
+	//{
+	//}
 	while(1) 
 	{
 		//rando();
@@ -33,8 +38,8 @@ int main(void)
 		//led_test5();
 		//cubes_task();
 		//audio_task();
-		//snake_task();
-		panels_task();
+		snake_task();
+		//panels_task();
 	}
 	return 0;
 }
