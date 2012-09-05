@@ -10,14 +10,14 @@
 #include "audio.h"
 #include "ledcube.h"
 
-#define NUM_SNAKES 2
-#define SNAKE_LENGTH 25
+#define NUM_SNAKES 1
+#define SNAKE_LENGTH 43
 #define SNAKE_COLOR_STEP 0.001
 
-#define SNAKE_MIN_DELAY 5
-#define SNAKE_MAX_DELAY 12
+#define SNAKE_MIN_DELAY 1
+#define SNAKE_MAX_DELAY 50
 
-//#define RAINBOW_SNAKE
+#define RAINBOW_SNAKE
 
 //#define MORE_STRAIGHT_PROBABILITY
 
