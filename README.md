@@ -17,7 +17,7 @@ Hardware
 --------
 ### LED Matrix Topography
 Since I only had enough hardware to create a 4x4x4 cube, I wanted the display to be as robust as
-possible. I opted to use the TLC5940 16-channel constant-current LED driver from Texas
+possible. I opted to use the [TLC5940](http://www.ti.com/product/tlc5940) 16-channel constant-current LED driver from Texas
 Instruments, which provides 16 independent 12-bit PWM channels, each of which can sink &gt;100mA 
 of current. My goal was to be able to use a single 16-channel driver to drive all 192 channels by
 using a multiplexing scheme. To acheive this, I grouped the LEDs into individual "pages" of 4 LEDs.
