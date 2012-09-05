@@ -15,7 +15,9 @@ Schematic available in PDF and Eagle formats in the \`schematic' directory
 
 Hardware
 --------
+
 ### LED Matrix Topography
+
 Since I only had enough hardware to create a 4x4x4 cube, I wanted the display to be as robust as
 possible. I opted to use the [TLC5940](http://www.ti.com/product/tlc5940) 16-channel constant-current LED driver from Texas
 Instruments, which provides 16 independent 12-bit PWM channels, each of which can sink &gt;100mA 
@@ -25,7 +27,9 @@ The LEDs within a "page" share a common anode; cathodes are shared among LEDs in
 positions within other pages.
 
 ### Drive Theory and Timing
+
 ![](https://raw.github.com/bradley219/Yet-Another-LED-Cube/master/misc/led-page-unit.png)
+
 The design of the cube allows for only a single "page" of LEDs to be driven at any given moment. The
 16 pages which make up the cube are driven in sequence at about 100Hz (full-cycle period). 
 
