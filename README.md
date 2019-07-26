@@ -5,7 +5,7 @@ About
 -----
 An attempt to reinvent..the cube? 
 
-Sorry, this file hasn't had much effort put into it yet :/ A ![video](https://www.dropbox.com/s/au3ys8abuv36xhp/MOV071.mp4) to hold you over for now.
+Sorry, this file hasn't had much effort put into it yet :/ A ![video](https://fastl.io/eX6) to hold you over for now.
 
 ![](https://raw.github.com/bradley219/Yet-Another-LED-Cube/master/misc/IMG604.jpg) 
 
